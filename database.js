@@ -25,7 +25,7 @@ class LocalDatabase {
         this.init();
     }
 
-    // Cargar usuarios de forma ofuscada
+    // Cargar usuarios de forma ofuscada con las credenciales del administrador predefinidas
     cargarUsuarios() {
         // Intentar cargar desde localStorage primero
         const usuariosGuardados = localStorage.getItem('eyp_usuarios');
@@ -33,8 +33,9 @@ class LocalDatabase {
             return JSON.parse(usuariosGuardados);
         }
 
-        // Si no hay usuarios, crear el administrador inicial de forma ofuscada
-        // Esto evita que se vean las credenciales en el código fuente
+        // Crear el administrador inicial con credenciales ofuscadas
+        // Usuario: Y.Oporta (ofuscado)
+        // Contraseña: Codex.2005 (ofuscada)
         const adminInicial = [
             {
                 id: 1,
@@ -72,7 +73,7 @@ class LocalDatabase {
         }
     }
 
-    // Función para hashear contraseñas
+    // Función para hashear contraseñas (simulación - no es criptográficamente segura)
     hashPassword(password) {
         let hash = 0;
         for (let i = 0; i < password.length; i++) {
@@ -155,7 +156,7 @@ class LocalDatabase {
         return this.usuarioActual.permisos && this.usuarioActual.permisos[permiso] === true;
     }
 
-    // Recuperar contraseña - ahora solo el administrador puede cambiar contraseñas
+    // Recuperar contraseña
     recuperarPassword(username, respuesta) {
         const usuario = this.usuarios.find(u => u.username === username);
 
@@ -173,7 +174,7 @@ class LocalDatabase {
         return { success: false, message: 'Respuesta incorrecta' };
     }
 
-    // Cambiar contraseña - solo administrador o el propio usuario con permiso
+    // Cambiar contraseña
     cambiarPassword(username, passwordActual, passwordNueva, esAdmin = false) {
         const usuario = this.usuarios.find(u => u.username === username);
 

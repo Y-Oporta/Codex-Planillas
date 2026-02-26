@@ -20,7 +20,10 @@
             --amarillo-claro: #fff9c4;
             --amarillo-texto: #fbc02d;
             --gris-oscuro: #34495e;
-            --sombra: rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
         }
 
         body {
@@ -29,42 +32,51 @@
             padding: 15px;
             background: var(--blanco);
             color: var(--charcoal);
-            min-height: 100vh;
-            box-sizing: border-box;
         }
 
-        /* Notificaciones con estilo transparente */
+        /* Notificaciones mejoradas - sin sombras */
         .notificacion {
             position: fixed;
             top: 20px;
             right: 20px;
-            padding: 15px 25px;
+            padding: 12px 20px;
             color: white;
-            font-weight: bold;
+            font-weight: 500;
             font-size: 14px;
             z-index: 9999;
             animation: slideIn 0.3s ease-out;
             max-width: 350px;
             border: none;
-            border-radius: 8px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .notificacion::before {
+            content: "●";
+            font-size: 16px;
+            margin-right: 5px;
         }
 
         .notificacion.exito {
-            background: rgba(46, 125, 50, 0.9);
-            border-left: 5px solid #1b5e20;
+            background: var(--verde-texto);
+            border-left: 4px solid #1b5e20;
         }
 
         .notificacion.error {
-            background: rgba(198, 40, 40, 0.9);
-            border-left: 5px solid #b71c1c;
+            background: var(--rojo-texto);
+            border-left: 4px solid #b71c1c;
         }
 
         .notificacion.advertencia {
-            background: rgba(251, 192, 45, 0.9);
+            background: var(--amarillo-texto);
             color: var(--charcoal);
-            border-left: 5px solid #f57f17;
+            border-left: 4px solid #f57f17;
+        }
+
+        .notificacion.advertencia::before {
+            color: var(--charcoal);
         }
 
         @keyframes slideIn {
@@ -89,7 +101,7 @@
                 max-width: 90%;
                 right: 5%;
                 font-size: 13px;
-                padding: 12px 18px;
+                padding: 10px 15px;
             }
 
             .tabs {
@@ -104,7 +116,6 @@
 
             .grid-form {
                 grid-template-columns: 1fr;
-                gap: 10px;
             }
 
             .table-container {
@@ -114,21 +125,6 @@
             .modal-content {
                 width: 95%;
                 padding: 15px;
-            }
-
-            .edit-registros-tabla {
-                font-size: 10px;
-            }
-
-            .edit-registros-tabla input {
-                font-size: 10px;
-                padding: 4px;
-            }
-
-            .btn-action {
-                width: auto;
-                padding: 5px 8px;
-                font-size: 10px;
             }
 
             .user-header {
@@ -142,6 +138,10 @@
                 margin: 30px auto;
                 padding: 20px;
             }
+
+            .pagination {
+                flex-wrap: wrap;
+            }
         }
 
         /* Login */
@@ -151,8 +151,6 @@
             padding: 30px;
             border: 1px solid var(--gris-borde);
             background: var(--gris-fondo);
-            border-radius: 8px;
-            box-shadow: 0 2px 10px var(--sombra);
         }
 
         .login-container h2 {
@@ -167,7 +165,6 @@
             margin: 10px 0;
             border: 1px solid var(--gris-borde);
             box-sizing: border-box;
-            border-radius: 4px;
         }
 
         .login-container button {
@@ -175,10 +172,9 @@
             padding: 12px;
             background: var(--charcoal);
             color: white;
-            border: none;
+            border: 1px solid var(--charcoal);
             cursor: pointer;
             font-weight: bold;
-            border-radius: 4px;
         }
 
         .login-footer {
@@ -200,7 +196,6 @@
             padding: 10px 0;
             margin-bottom: 20px;
             border-bottom: 1px solid var(--gris-borde);
-            flex-wrap: wrap;
         }
 
         .user-info {
@@ -217,7 +212,6 @@
             color: var(--rojo-texto);
             border: 1px solid var(--rojo-texto);
             cursor: pointer;
-            border-radius: 4px;
         }
 
         /* Tabs Navigation */
@@ -226,24 +220,24 @@
             gap: 5px;
             margin-bottom: 20px;
             border-bottom: 2px solid var(--gris-borde);
-            flex-wrap: wrap;
         }
 
         .tab-btn {
             padding: 12px 25px;
             cursor: pointer;
             background: var(--gris-fondo);
-            border: none;
+            border: 1px solid var(--gris-borde);
+            border-bottom: none;
             font-weight: bold;
             text-transform: uppercase;
             font-size: 12px;
             color: var(--charcoal);
-            border-radius: 4px 4px 0 0;
         }
 
         .tab-btn.active {
             background: var(--charcoal);
             color: var(--blanco);
+            border-color: var(--charcoal);
         }
 
         .content-section {
@@ -279,14 +273,7 @@
             font-weight: 600;
             font-size: 11px;
             text-transform: uppercase;
-            border-radius: 4px;
-            transition: all 0.2s;
-        }
-
-        button:hover {
-            opacity: 0.9;
-            transform: translateY(-1px);
-            box-shadow: 0 2px 5px var(--sombra);
+            background: white;
         }
 
         .btn-add {
@@ -313,66 +300,66 @@
             border-color: var(--celeste-texto);
         }
 
-        /* Buscadores */
+        /* Buscadores compactos */
         .search-container {
-            margin-bottom: 20px;
-            background: var(--gris-fondo);
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid var(--gris-borde);
+            margin-bottom: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            background: transparent;
+            padding: 0;
         }
 
         .search-input {
-            width: 100%;
-            padding: 12px;
+            padding: 8px 12px;
             border: 1px solid var(--gris-borde);
-            border-radius: 4px;
-            font-size: 14px;
-            box-sizing: border-box;
+            font-size: 13px;
+            min-width: 200px;
+            flex: 1 1 auto;
         }
 
         .filter-group {
             display: flex;
-            gap: 15px;
+            gap: 10px;
             flex-wrap: wrap;
-            margin-top: 15px;
+            align-items: center;
         }
 
         .filter-item {
-            flex: 1 1 200px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
         .filter-item label {
-            display: block;
             font-size: 11px;
             font-weight: bold;
-            margin-bottom: 5px;
             color: var(--charcoal);
+            white-space: nowrap;
         }
 
         .filter-item input {
-            width: 100%;
             padding: 8px;
             border: 1px solid var(--gris-borde);
-            border-radius: 4px;
-            font-size: 13px;
+            font-size: 12px;
+            width: 130px;
         }
 
-        /* Tablas */
+        /* Tablas - sin bordes */
         .table-container {
             width: 100%;
             overflow-x: auto;
             background: white;
             margin-top: 10px;
-            border: 1px solid var(--gris-borde);
-            border-radius: 8px;
-            box-shadow: 0 2px 5px var(--sombra);
+            border: none;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
             min-width: 1000px;
+            border: none;
         }
 
         th {
@@ -388,12 +375,44 @@
         td {
             padding: 10px;
             font-size: 12px;
-            border-bottom: 1px solid var(--gris-borde);
             white-space: nowrap;
+            border: none;
+        }
+
+        tr {
+            border: none;
         }
 
         tr:hover {
             background-color: var(--celeste-claro);
+        }
+
+        /* Paginación */
+        .pagination {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 8px;
+            margin-top: 15px;
+            padding: 10px 0;
+        }
+
+        .pagination button {
+            padding: 6px 12px;
+            font-size: 11px;
+            min-width: 35px;
+        }
+
+        .pagination button.active {
+            background: var(--charcoal);
+            color: white;
+            border-color: var(--charcoal);
+        }
+
+        .pagination-info {
+            font-size: 12px;
+            color: var(--gris-oscuro);
+            margin-right: 15px;
         }
 
         .btn-action {
@@ -411,7 +430,6 @@
             padding: 20px;
             border: 1px solid var(--gris-borde);
             margin-bottom: 20px;
-            border-radius: 8px;
         }
 
         .grid-form {
@@ -439,7 +457,6 @@
             border: 1px solid var(--gris-borde);
             box-sizing: border-box;
             font-size: 12px;
-            border-radius: 4px;
         }
 
         .form-group input.autocompletado {
@@ -459,8 +476,6 @@
             overflow-y: auto;
             z-index: 1000;
             display: none;
-            border-radius: 4px;
-            box-shadow: 0 4px 8px var(--sombra);
         }
 
         .sugerencias div {
@@ -480,8 +495,6 @@
             margin-bottom: 15px;
             padding: 15px;
             background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px var(--sombra);
         }
 
         .group-header {
@@ -519,8 +532,6 @@
             justify-content: center;
             align-items: center;
             z-index: 1000;
-            padding: 10px;
-            box-sizing: border-box;
         }
 
         .modal-content {
@@ -531,8 +542,6 @@
             max-height: 80vh;
             overflow-y: auto;
             border: 1px solid var(--gris-borde);
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
 
         .modal-lg {
@@ -547,7 +556,6 @@
             margin: 15px 0;
             border: 1px solid var(--gris-borde);
             background: white;
-            border-radius: 4px;
         }
 
         .edit-registros-tabla {
@@ -555,6 +563,7 @@
             border-collapse: collapse;
             font-size: 11px;
             min-width: 1200px;
+            border: none;
         }
 
         .edit-registros-tabla th {
@@ -570,7 +579,7 @@
 
         .edit-registros-tabla td {
             padding: 8px 5px;
-            border-bottom: 1px solid var(--gris-borde);
+            border: none;
         }
 
         .edit-registros-tabla input {
@@ -579,7 +588,6 @@
             border: 1px solid var(--gris-borde);
             box-sizing: border-box;
             font-size: 11px;
-            border-radius: 3px;
         }
 
         .btn-eliminar-registro {
@@ -589,7 +597,6 @@
             padding: 4px 8px;
             font-size: 10px;
             cursor: pointer;
-            border-radius: 3px;
         }
 
         .btn-agregar-registro {
@@ -609,7 +616,6 @@
             max-height: 500px;
             overflow-y: auto;
             border: 1px solid var(--gris-borde);
-            border-radius: 4px;
         }
 
         .detalle-tabla-container th {
@@ -626,6 +632,7 @@
             border-collapse: collapse;
             font-size: 12px;
             min-width: 800px;
+            border: none;
         }
 
         .usuarios-table th {
@@ -637,7 +644,7 @@
 
         .usuarios-table td {
             padding: 8px 10px;
-            border-bottom: 1px solid var(--gris-borde);
+            border: none;
         }
 
         .permiso-badge {
@@ -645,7 +652,6 @@
             padding: 2px 6px;
             font-size: 10px;
             margin: 2px;
-            border-radius: 3px;
         }
 
         .permiso-activo {
@@ -665,6 +671,7 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 10px;
+            border: none;
         }
 
         .admin-db-table th {
@@ -676,20 +683,18 @@
 
         .admin-db-table td {
             padding: 8px;
-            border-bottom: 1px solid var(--gris-borde);
+            border: none;
         }
 
         .admin-db-table input {
             width: 100%;
             padding: 6px;
             border: 1px solid var(--gris-borde);
-            border-radius: 3px;
         }
 
         .btn-small {
             padding: 5px 10px;
             font-size: 10px;
-            margin: 0 2px;
         }
     </style>
 </head>
@@ -699,7 +704,6 @@
     <div id="notificacionContainer"></div>
     <div id="app"></div>
 
-    <!-- Incluir la base de datos -->
     <script src="database.js"></script>
 
     <script>
@@ -708,23 +712,34 @@
         let historialGrupos = JSON.parse(localStorage.getItem("eyp_historial")) || [];
         let contadorGrupo = parseInt(localStorage.getItem("eyp_contador")) || 1;
 
+        // Variables para paginación
+        let paginaActualDiario = 1;
+        let filasPorPagina = 10;
+        let paginaActualHistorial = 1;
+        let gruposPorPagina = 5;
+
         // Variables para autocompletado
         let timeoutId;
         let currentEditMode = false;
 
-        // Función para mostrar notificaciones
+        // Función para mostrar notificaciones mejoradas
         window.mostrarNotificacion = function (mensaje, tipo = 'exito') {
             const container = document.getElementById('notificacionContainer');
             const notificacion = document.createElement('div');
             notificacion.className = `notificacion ${tipo}`;
-            notificacion.textContent = mensaje;
+
+            // Agregar ícono según tipo
+            const icono = tipo === 'exito' ? '✓' : tipo === 'error' ? '✗' : '⚠';
+            notificacion.innerHTML = `<span style="font-weight:bold; margin-right:8px;">${icono}</span>${mensaje}`;
 
             container.appendChild(notificacion);
 
             setTimeout(() => {
                 notificacion.style.animation = 'slideIn 0.3s ease-out reverse';
                 setTimeout(() => {
-                    container.removeChild(notificacion);
+                    if (container.contains(notificacion)) {
+                        container.removeChild(notificacion);
+                    }
                 }, 300);
             }, 3000);
         };
@@ -756,29 +771,7 @@
                     abrirFormulario();
                 }
             }
-            if (e.ctrlKey && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) {
-                e.preventDefault();
-                navegarEntreCampos(e.key === 'ArrowRight' ? 1 : -1);
-            }
         });
-
-        function navegarEntreCampos(direccion) {
-            const inputs = document.querySelectorAll('#formulario input:not([readonly]), .edit-registros-tabla input:not([readonly])');
-            if (inputs.length === 0) return;
-
-            let currentIndex = -1;
-            for (let i = 0; i < inputs.length; i++) {
-                if (document.activeElement === inputs[i]) {
-                    currentIndex = i;
-                    break;
-                }
-            }
-
-            let newIndex = currentIndex + direccion;
-            if (newIndex >= 0 && newIndex < inputs.length) {
-                inputs[newIndex].focus();
-            }
-        }
 
         // Renderizar la aplicación según el estado de sesión
         function renderizarApp() {
@@ -840,7 +833,7 @@
                         <input type="text" id="rec-respuesta" style="width:100%; padding:8px; border:1px solid var(--gris-borde);">
                     </div>
                     <div style="margin-top:20px; display:flex; gap:10px; justify-content:flex-end;">
-                        <button onclick="recuperarPassword()" style="padding:10px; background:var(--celeste-texto); color:white; border:none; cursor:pointer;">Recuperar</button>
+                        <button onclick="recuperarPassword()" style="padding:10px; background:var(--celeste-texto); color:white; border:1px solid var(--celeste-texto); cursor:pointer;">Recuperar</button>
                         <button onclick="this.closest('.modal').remove()" style="padding:10px; background:var(--gris-fondo); border:1px solid var(--gris-borde); cursor:pointer;">Cancelar</button>
                     </div>
                 </div>
@@ -898,7 +891,7 @@
                         <input type="password" id="cambiar-password-confirmar" style="width:100%; padding:8px; border:1px solid var(--gris-borde);">
                     </div>
                     <div style="margin-top:20px; display:flex; gap:10px; justify-content:flex-end;">
-                        <button onclick="cambiarPassword(${esAdmin})" style="padding:10px; background:var(--verde-texto); color:white; border:none; cursor:pointer;">Cambiar</button>
+                        <button onclick="cambiarPassword(${esAdmin})" style="padding:10px; background:var(--verde-texto); color:white; border:1px solid var(--verde-texto); cursor:pointer;">Cambiar</button>
                         <button onclick="this.closest('.modal').remove()" style="padding:10px; background:var(--gris-fondo); border:1px solid var(--gris-borde); cursor:pointer;">Cancelar</button>
                     </div>
                 </div>
@@ -962,7 +955,7 @@
                         ${db.tienePermiso('gestionarUsuarios') ? '<button class="btn-admin" onclick="mostrarPanelUsuarios()">Admin Usuarios</button>' : ''}
                     </div>
 
-                    <!-- Buscador para Control de Producción -->
+                    <!-- Buscador compacto -->
                     <div class="search-container">
                         <input type="text" id="buscarDiario" class="search-input" placeholder="Buscar por código, nombre o actividad...">
                     </div>
@@ -1030,31 +1023,35 @@
                             <tbody id="tablaCuerpo"></tbody>
                         </table>
                     </div>
+                    
+                    <!-- Paginación para Control de Producción -->
+                    <div id="paginacionDiario" class="pagination"></div>
                 </section>
 
                 ${db.tienePermiso('verHistorialGrupos') ? `
                 <section id="planilla" class="content-section">
                     <h2>Historial de Grupos Planilla</h2>
                     
-                    <!-- Buscador y Filtro por Fecha para Historial -->
+                    <!-- Buscador y Filtros compactos -->
                     <div class="search-container">
-                        <input type="text" id="buscarHistorial" class="search-input" placeholder="Buscar por ID, encargado o creador...">
+                        <input type="text" id="buscarHistorial" class="search-input" placeholder="Buscar por ID, encargado o creador..." style="flex:2;">
                         <div class="filter-group">
                             <div class="filter-item">
-                                <label>Fecha Desde</label>
+                                <label>Desde</label>
                                 <input type="date" id="filtroFechaDesde">
                             </div>
                             <div class="filter-item">
-                                <label>Fecha Hasta</label>
+                                <label>Hasta</label>
                                 <input type="date" id="filtroFechaHasta">
                             </div>
-                            <div class="filter-item" style="display: flex; align-items: flex-end;">
-                                <button onclick="aplicarFiltrosHistorial()" class="btn-export" style="width:100%;">Filtrar</button>
-                            </div>
+                            <button onclick="aplicarFiltrosHistorial()" class="btn-export" style="padding:8px 15px;">Filtrar</button>
                         </div>
                     </div>
 
                     <div id="listaGrupos"></div>
+                    
+                    <!-- Paginación para Historial -->
+                    <div id="paginacionHistorial" class="pagination"></div>
                 </section>
                 ` : ''}
 
@@ -1101,7 +1098,7 @@
                                 <tbody id="cuerpoDetalleGrupo"></tbody>
                             </table>
                         </div>
-                        <button onclick="cerrarModalDetalle()" style="width:100%; margin-top:20px; padding:12px; background: var(--charcoal); color:white; border:none; cursor:pointer;">Cerrar</button>
+                        <button onclick="cerrarModalDetalle()" style="width:100%; margin-top:20px; padding:12px; background: var(--charcoal); color:white; border:1px solid var(--charcoal); cursor:pointer;">Cerrar</button>
                     </div>
                 </div>
 
@@ -1149,21 +1146,65 @@
                 </div>
             `;
 
-            // Configurar eventos de autocompletado
             configurarAutocompletado();
 
-            // Configurar buscador en tiempo real
             const inputBuscarDiario = document.getElementById('buscarDiario');
             if (inputBuscarDiario) {
-                inputBuscarDiario.addEventListener('input', () => renderizarDiario());
+                inputBuscarDiario.addEventListener('input', () => {
+                    paginaActualDiario = 1;
+                    renderizarDiario();
+                });
             }
 
-            // Renderizar datos
             renderizarDiario();
             if (db.tienePermiso('verHistorialGrupos')) {
                 renderizarHistorial();
             }
         }
+
+        // Funciones de paginación
+        function renderizarPaginacion(totalItems, itemsPorPagina, paginaActual, elementoId, callback) {
+            const totalPaginas = Math.ceil(totalItems / itemsPorPagina);
+            const contenedor = document.getElementById(elementoId);
+            if (!contenedor) return;
+
+            if (totalPaginas <= 1) {
+                contenedor.innerHTML = '';
+                return;
+            }
+
+            let html = `
+                <span class="pagination-info">
+                    Página ${paginaActual} de ${totalPaginas} (${totalItems} registros)
+                </span>
+            `;
+
+            // Botón anterior
+            html += `<button onclick="cambiarPagina('${elementoId}', ${paginaActual - 1})" ${paginaActual === 1 ? 'disabled' : ''}>‹</button>`;
+
+            // Números de página
+            let inicio = Math.max(1, paginaActual - 2);
+            let fin = Math.min(totalPaginas, paginaActual + 2);
+
+            for (let i = inicio; i <= fin; i++) {
+                html += `<button onclick="cambiarPagina('${elementoId}', ${i})" class="${i === paginaActual ? 'active' : ''}">${i}</button>`;
+            }
+
+            // Botón siguiente
+            html += `<button onclick="cambiarPagina('${elementoId}', ${paginaActual + 1})" ${paginaActual === totalPaginas ? 'disabled' : ''}>›</button>`;
+
+            contenedor.innerHTML = html;
+        }
+
+        window.cambiarPagina = function (elementoId, nuevaPagina) {
+            if (elementoId === 'paginacionDiario') {
+                paginaActualDiario = nuevaPagina;
+                renderizarDiario();
+            } else if (elementoId === 'paginacionHistorial') {
+                paginaActualHistorial = nuevaPagina;
+                renderizarHistorial();
+            }
+        };
 
         // Configurar eventos de autocompletado
         function configurarAutocompletado() {
@@ -1277,7 +1318,11 @@
             document.getElementById(tabId).classList.add('active');
             event.currentTarget.classList.add('active');
             if (tabId === 'planilla') {
+                paginaActualHistorial = 1;
                 renderizarHistorial();
+            } else if (tabId === 'control') {
+                paginaActualDiario = 1;
+                renderizarDiario();
             }
             currentEditMode = false;
         }
@@ -1321,6 +1366,7 @@
 
             localStorage.setItem("eyp_diario", JSON.stringify(datosDiarios));
             limpiar();
+            paginaActualDiario = 1;
             renderizarDiario();
         }
 
@@ -1330,14 +1376,19 @@
 
             const filtro = document.getElementById('buscarDiario')?.value.toLowerCase() || '';
 
-            const datosFiltrados = datosDiarios.filter(d =>
+            let datosFiltrados = datosDiarios.filter(d =>
                 d.codigo?.toLowerCase().includes(filtro) ||
                 d.nombre?.toLowerCase().includes(filtro) ||
                 d.actividad?.toLowerCase().includes(filtro)
             );
 
+            // Aplicar paginación
+            const inicio = (paginaActualDiario - 1) * filasPorPagina;
+            const fin = inicio + filasPorPagina;
+            const datosPaginados = datosFiltrados.slice(inicio, fin);
+
             tbody.innerHTML = "";
-            datosFiltrados.forEach((d, i) => {
+            datosPaginados.forEach((d, i) => {
                 const indexOriginal = datosDiarios.indexOf(d);
                 let acciones = '';
                 if (db.tienePermiso('editarRegistros')) {
@@ -1366,6 +1417,8 @@
                     <td>${acciones}</td>
                 </tr>`;
             });
+
+            renderizarPaginacion(datosFiltrados.length, filasPorPagina, paginaActualDiario, 'paginacionDiario', renderizarDiario);
         }
 
         function limpiar() {
@@ -1404,6 +1457,7 @@
             confirmarAccion("¿Está seguro de eliminar este registro?", () => {
                 datosDiarios.splice(i, 1);
                 localStorage.setItem("eyp_diario", JSON.stringify(datosDiarios));
+                paginaActualDiario = 1;
                 renderizarDiario();
                 mostrarNotificacion("Registro eliminado correctamente", 'exito');
             });
@@ -1460,9 +1514,11 @@
             document.getElementById("encNombre").value = "";
 
             cerrarModalGrupo();
+            paginaActualDiario = 1;
             renderizarDiario();
             mostrarNotificacion(`Grupo ${codigoGenerado} guardado exitosamente`, 'exito');
             if (db.tienePermiso('verHistorialGrupos')) {
+                paginaActualHistorial = 1;
                 switchTab('planilla');
             }
         }
@@ -1476,20 +1532,18 @@
 
             let gruposAMostrar = puedeVerTodos ? historialGrupos : historialGrupos.filter(g => g.creador === usuario.username);
 
-            // Aplicar filtros de búsqueda y fecha
+            // Aplicar filtros
             const textoBusqueda = document.getElementById('buscarHistorial')?.value.toLowerCase() || '';
             const fechaDesde = document.getElementById('filtroFechaDesde')?.value;
             const fechaHasta = document.getElementById('filtroFechaHasta')?.value;
 
             gruposAMostrar = gruposAMostrar.filter(g => {
-                // Filtro de texto
                 const cumpleTexto = textoBusqueda === '' ||
                     g.idGrupo.toLowerCase().includes(textoBusqueda) ||
                     g.encargado.nombre.toLowerCase().includes(textoBusqueda) ||
                     g.encargado.codigo.toLowerCase().includes(textoBusqueda) ||
                     (g.creadorNombre || g.creador).toLowerCase().includes(textoBusqueda);
 
-                // Filtro de fecha
                 let cumpleFecha = true;
                 if (fechaDesde || fechaHasta) {
                     const fechaGrupo = new Date(g.fechaCreacion);
@@ -1507,9 +1561,15 @@
                 return cumpleTexto && cumpleFecha;
             });
 
-            contenedor.innerHTML = gruposAMostrar.length === 0 ? "<p style='text-align:center; padding:20px; background:var(--gris-fondo);'>No hay grupos guardados que coincidan con los filtros.</p>" : "";
+            // Aplicar paginación
+            const inicio = (paginaActualHistorial - 1) * gruposPorPagina;
+            const fin = inicio + gruposPorPagina;
+            const gruposPaginados = gruposAMostrar.slice(inicio, fin);
 
-            gruposAMostrar.forEach((g, i) => {
+            contenedor.innerHTML = gruposPaginados.length === 0 ?
+                "<p style='text-align:center; padding:20px; background:var(--gris-fondo); border:1px solid var(--gris-borde);'>No hay grupos guardados que coincidan con los filtros.</p>" : "";
+
+            gruposPaginados.forEach((g, i) => {
                 const indexOriginal = historialGrupos.findIndex(h => h.idGrupo === g.idGrupo);
 
                 let acciones = '';
@@ -1540,14 +1600,17 @@
                             ${acciones}
                         </div>
                     </div>
-                    <div style="font-size:12px; color:var(--charcoal); background:var(--gris-fondo); padding:8px;">
+                    <div style="font-size:12px; color:var(--charcoal); background:var(--gris-fondo); padding:8px; border:1px solid var(--gris-borde);">
                         <strong>Encargado:</strong> ${g.encargado.nombre} (${g.encargado.codigo})
                     </div>
                 </div>`;
             });
+
+            renderizarPaginacion(gruposAMostrar.length, gruposPorPagina, paginaActualHistorial, 'paginacionHistorial', renderizarHistorial);
         }
 
         window.aplicarFiltrosHistorial = function () {
+            paginaActualHistorial = 1;
             renderizarHistorial();
         };
 
@@ -1780,6 +1843,7 @@
                 let grupoEliminado = historialGrupos[i].idGrupo;
                 historialGrupos.splice(i, 1);
                 localStorage.setItem("eyp_historial", JSON.stringify(historialGrupos));
+                paginaActualHistorial = 1;
                 renderizarHistorial();
                 mostrarNotificacion(`Grupo ${grupoEliminado} eliminado correctamente`, 'exito');
             });
@@ -1849,7 +1913,7 @@
                 <h2 style="margin-bottom:20px;">Administración de Usuarios</h2>
                 
                 <div style="margin-bottom:20px;">
-                    <button onclick="mostrarFormularioNuevoUsuario()" style="padding:10px; background:var(--verde-texto); color:white; border:none; cursor:pointer;">+ Nuevo Usuario</button>
+                    <button onclick="mostrarFormularioNuevoUsuario()" class="btn-add">+ Nuevo Usuario</button>
                 </div>
                 
                 <div style="overflow-x: auto;">
@@ -1886,9 +1950,9 @@
                                         <span class="permiso-badge ${u.permisos.cambiarPassword ? 'permiso-activo' : 'permiso-inactivo'}">PWD</span>
                                     </td>
                                     <td>
-                                        <button onclick="editarUsuarioForm(${u.id})" style="padding:3px 8px; background:var(--celeste-claro); border:1px solid var(--celeste-texto); cursor:pointer; margin-right:5px;">Editar</button>
-                                        <button onclick="toggleUsuarioActivo(${u.id})" style="padding:3px 8px; background:var(--amarillo-claro); border:1px solid var(--amarillo-texto); cursor:pointer; margin-right:5px;">${u.activo ? 'Inhabilitar' : 'Habilitar'}</button>
-                                        ${u.id !== 1 ? `<button onclick="eliminarUsuarioConfirm(${u.id})" style="padding:3px 8px; background:var(--rojo-claro); border:1px solid var(--rojo-texto); cursor:pointer;">Eliminar</button>` : ''}
+                                        <button onclick="editarUsuarioForm(${u.id})" class="btn-edit btn-small" style="padding:3px 8px;">Editar</button>
+                                        <button onclick="toggleUsuarioActivo(${u.id})" class="btn-small" style="background:var(--amarillo-claro); border:1px solid var(--amarillo-texto);">${u.activo ? 'Inhabilitar' : 'Habilitar'}</button>
+                                        ${u.id !== 1 ? `<button onclick="eliminarUsuarioConfirm(${u.id})" class="btn-delete btn-small" style="padding:3px 8px;">Eliminar</button>` : ''}
                                     </td>
                                 </tr>
                             `).join('')}
@@ -1896,7 +1960,7 @@
                     </table>
                 </div>
                 
-                <button onclick="this.closest('.modal').remove()" style="width:100%; margin-top:20px; padding:10px; background:var(--charcoal); color:white; border:none; cursor:pointer;">Cerrar</button>
+                <button onclick="this.closest('.modal').remove()" class="btn-group" style="width:100%; margin-top:20px;">Cerrar</button>
             `;
 
             modal.appendChild(contenido);
@@ -1905,7 +1969,6 @@
 
         // Mostrar formulario de nuevo usuario
         window.mostrarFormularioNuevoUsuario = function () {
-            // Cerrar el modal de administración de usuarios primero
             const modalAdmin = document.querySelector('.modal');
             if (modalAdmin) modalAdmin.remove();
 
@@ -1970,8 +2033,8 @@
                 </div>
                 
                 <div style="margin-top:20px; display:flex; gap:10px; justify-content:flex-end;">
-                    <button onclick="guardarNuevoUsuario()" style="padding:10px; background:var(--verde-texto); color:white; border:none; cursor:pointer;">Guardar</button>
-                    <button onclick="volverPanelUsuarios()" style="padding:10px; background:var(--gris-fondo); border:1px solid var(--gris-borde); cursor:pointer;">Cancelar</button>
+                    <button onclick="guardarNuevoUsuario()" class="btn-add">Guardar</button>
+                    <button onclick="volverPanelUsuarios()" style="background:var(--gris-fondo);">Cancelar</button>
                 </div>
             `;
 
@@ -2012,12 +2075,10 @@
             }
         };
 
-        // Volver al panel de usuarios (CORREGIDO)
+        // Volver al panel de usuarios
         window.volverPanelUsuarios = function () {
-            // Cerrar el modal actual
             const modalActual = document.querySelector('.modal');
             if (modalActual) modalActual.remove();
-            // Abrir el panel de usuarios
             mostrarPanelUsuarios();
         };
 
@@ -2090,8 +2151,8 @@
                 </div>
                 
                 <div style="margin-top:20px; display:flex; gap:10px; justify-content:flex-end;">
-                    <button onclick="guardarEdicionUsuario()" style="padding:10px; background:var(--verde-texto); color:white; border:none; cursor:pointer;">Guardar</button>
-                    <button onclick="volverPanelUsuarios()" style="padding:10px; background:var(--gris-fondo); border:1px solid var(--gris-borde); cursor:pointer;">Cancelar</button>
+                    <button onclick="guardarEdicionUsuario()" class="btn-add">Guardar</button>
+                    <button onclick="volverPanelUsuarios()" style="background:var(--gris-fondo);">Cancelar</button>
                 </div>
             `;
 
@@ -2168,7 +2229,7 @@
             }
         };
 
-        // Mostrar panel de Admin DB (MEJORADO)
+        // Mostrar panel de Admin DB
         window.mostrarPanelAdminDB = function () {
             if (!db.tienePermiso('verAdminDB')) {
                 mostrarNotificacion('No tiene permiso para ver esta sección', 'error');
@@ -2206,6 +2267,7 @@
                             </thead>
                             <tbody id="cuerpoTrabajadores"></tbody>
                         </table>
+                        <div id="paginacionTrabajadores" class="pagination"></div>
                     </div>
                 </div>
                 
@@ -2229,59 +2291,116 @@
                             </thead>
                             <tbody id="cuerpoActividades"></tbody>
                         </table>
+                        <div id="paginacionActividades" class="pagination"></div>
                     </div>
                 </div>
                 
-                <button onclick="this.closest('.modal').remove()" style="width:100%; margin-top:30px; padding:10px; background:var(--charcoal); color:white; border:none; cursor:pointer;">Cerrar</button>
+                <button onclick="this.closest('.modal').remove()" class="btn-group" style="width:100%; margin-top:30px;">Cerrar</button>
             `;
 
             modal.appendChild(contenido);
             document.body.appendChild(modal);
 
-            // Renderizar las tablas
+            // Variables de paginación para Admin DB
+            window.paginaTrabajadores = 1;
+            window.paginaActividades = 1;
+
             renderizarAdminDB();
 
-            // Configurar buscadores
-            document.getElementById('buscarTrabajadores').addEventListener('input', renderizarAdminDB);
-            document.getElementById('buscarActividades').addEventListener('input', renderizarAdminDB);
+            document.getElementById('buscarTrabajadores').addEventListener('input', () => {
+                window.paginaTrabajadores = 1;
+                renderizarAdminDB();
+            });
+            document.getElementById('buscarActividades').addEventListener('input', () => {
+                window.paginaActividades = 1;
+                renderizarAdminDB();
+            });
         };
 
         function renderizarAdminDB() {
             const cuerpoTrabajadores = document.getElementById('cuerpoTrabajadores');
             const cuerpoActividades = document.getElementById('cuerpoActividades');
+            const filasPorPagina = 10;
 
             if (cuerpoTrabajadores) {
                 const filtroTrab = document.getElementById('buscarTrabajadores')?.value.toLowerCase() || '';
-                const trabajadores = db.getTrabajadores().filter(t =>
+                let trabajadores = db.getTrabajadores().filter(t =>
                     t.codigo.toLowerCase().includes(filtroTrab) ||
                     t.nombre.toLowerCase().includes(filtroTrab)
                 );
 
-                cuerpoTrabajadores.innerHTML = trabajadores.map(t => `
+                const inicio = (window.paginaTrabajadores - 1) * filasPorPagina;
+                const fin = inicio + filasPorPagina;
+                const trabajadoresPaginados = trabajadores.slice(inicio, fin);
+
+                cuerpoTrabajadores.innerHTML = trabajadoresPaginados.map(t => `
                     <tr>
                         <td>${t.codigo}</td>
                         <td>${t.nombre}</td>
                     </tr>
                 `).join('');
+
+                renderizarPaginacionAdmin(trabajadores.length, filasPorPagina, window.paginaTrabajadores, 'paginacionTrabajadores', (nuevaPagina) => {
+                    window.paginaTrabajadores = nuevaPagina;
+                    renderizarAdminDB();
+                });
             }
 
             if (cuerpoActividades) {
                 const filtroAct = document.getElementById('buscarActividades')?.value.toLowerCase() || '';
-                const actividades = db.getActividades().filter(a =>
+                let actividades = db.getActividades().filter(a =>
                     a.codigo.toLowerCase().includes(filtroAct) ||
                     a.nombre.toLowerCase().includes(filtroAct)
                 );
 
-                cuerpoActividades.innerHTML = actividades.map(a => `
+                const inicio = (window.paginaActividades - 1) * filasPorPagina;
+                const fin = inicio + filasPorPagina;
+                const actividadesPaginadas = actividades.slice(inicio, fin);
+
+                cuerpoActividades.innerHTML = actividadesPaginadas.map(a => `
                     <tr>
                         <td>${a.codigo}</td>
                         <td>${a.nombre}</td>
                     </tr>
                 `).join('');
+
+                renderizarPaginacionAdmin(actividades.length, filasPorPagina, window.paginaActividades, 'paginacionActividades', (nuevaPagina) => {
+                    window.paginaActividades = nuevaPagina;
+                    renderizarAdminDB();
+                });
             }
         }
 
-        // Funciones para agregar trabajador/actividad desde Admin DB
+        function renderizarPaginacionAdmin(totalItems, itemsPorPagina, paginaActual, elementoId, callback) {
+            const totalPaginas = Math.ceil(totalItems / itemsPorPagina);
+            const contenedor = document.getElementById(elementoId);
+            if (!contenedor) return;
+
+            if (totalPaginas <= 1) {
+                contenedor.innerHTML = '';
+                return;
+            }
+
+            let html = `
+                <span class="pagination-info">
+                    ${paginaActual} de ${totalPaginas}
+                </span>
+            `;
+
+            html += `<button onclick="callback(${paginaActual - 1})" ${paginaActual === 1 ? 'disabled' : ''}>‹</button>`;
+
+            let inicio = Math.max(1, paginaActual - 2);
+            let fin = Math.min(totalPaginas, paginaActual + 2);
+
+            for (let i = inicio; i <= fin; i++) {
+                html += `<button onclick="callback(${i})" class="${i === paginaActual ? 'active' : ''}">${i}</button>`;
+            }
+
+            html += `<button onclick="callback(${paginaActual + 1})" ${paginaActual === totalPaginas ? 'disabled' : ''}>›</button>`;
+
+            contenedor.innerHTML = html;
+        }
+
         window.agregarTrabajadorAdmin = function () {
             const modal = document.createElement('div');
             modal.className = 'modal';
@@ -2299,8 +2418,8 @@
                         <input type="text" id="nuevoTrabajadorNombre" style="width:100%; padding:8px; border:1px solid var(--gris-borde);">
                     </div>
                     <div style="margin-top:20px; display:flex; gap:10px; justify-content:flex-end;">
-                        <button onclick="guardarNuevoTrabajadorAdmin()" style="padding:10px; background:var(--verde-texto); color:white; border:none; cursor:pointer;">Guardar</button>
-                        <button onclick="this.closest('.modal').remove()" style="padding:10px; background:var(--gris-fondo); border:1px solid var(--gris-borde); cursor:pointer;">Cancelar</button>
+                        <button onclick="guardarNuevoTrabajadorAdmin()" class="btn-add">Guardar</button>
+                        <button onclick="this.closest('.modal').remove()" style="background:var(--gris-fondo);">Cancelar</button>
                     </div>
                 </div>
             `;
@@ -2316,6 +2435,7 @@
             if (resultado.success) {
                 mostrarNotificacion(resultado.message, 'exito');
                 document.querySelector('.modal').remove();
+                window.paginaTrabajadores = 1;
                 renderizarAdminDB();
             } else {
                 mostrarNotificacion(resultado.message, 'error');
@@ -2339,8 +2459,8 @@
                         <input type="text" id="nuevaActividadNombre" style="width:100%; padding:8px; border:1px solid var(--gris-borde);">
                     </div>
                     <div style="margin-top:20px; display:flex; gap:10px; justify-content:flex-end;">
-                        <button onclick="guardarNuevaActividadAdmin()" style="padding:10px; background:var(--verde-texto); color:white; border:none; cursor:pointer;">Guardar</button>
-                        <button onclick="this.closest('.modal').remove()" style="padding:10px; background:var(--gris-fondo); border:1px solid var(--gris-borde); cursor:pointer;">Cancelar</button>
+                        <button onclick="guardarNuevaActividadAdmin()" class="btn-add">Guardar</button>
+                        <button onclick="this.closest('.modal').remove()" style="background:var(--gris-fondo);">Cancelar</button>
                     </div>
                 </div>
             `;
@@ -2356,6 +2476,7 @@
             if (resultado.success) {
                 mostrarNotificacion(resultado.message, 'exito');
                 document.querySelector('.modal').remove();
+                window.paginaActividades = 1;
                 renderizarAdminDB();
             } else {
                 mostrarNotificacion(resultado.message, 'error');
