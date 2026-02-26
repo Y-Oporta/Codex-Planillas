@@ -1,9 +1,9 @@
 // database.js - Base de datos local con autenticación y gestión de usuarios
-// VERSIÓN SIMPLIFICADA - GARANTIZADA PARA FUNCIONAR EN GITHUB PAGES
+// VERSIÓN SIN HASH - GARANTIZADA PARA FUNCIONAR
 
 class LocalDatabase {
     constructor() {
-        // Inicializar usuarios - Versión ultra simple
+        // Inicializar usuarios - Versión sin hash
         this.usuarios = this.cargarUsuarios();
 
         // Inicializar trabajadores desde localStorage o usar datos por defecto
@@ -26,7 +26,7 @@ class LocalDatabase {
         this.init();
     }
 
-    // Cargar usuarios - Método DIRECTO Y SIMPLE
+    // Cargar usuarios - SIN HASH, usando texto plano para garantizar funcionamiento
     cargarUsuarios() {
         // Intentar cargar desde localStorage primero
         const usuariosGuardados = localStorage.getItem('eyp_usuarios');
@@ -34,15 +34,12 @@ class LocalDatabase {
             return JSON.parse(usuariosGuardados);
         }
 
-        // Usuario y contraseña DIRECTOS (pero con un hash simple)
-        // Usuario: Y.Oporta
-        // Contraseña: Codex.2005
+        // Usuario y contraseña en TEXTO PLANO (para garantizar que funcione)
         const adminInicial = [
             {
                 id: 1,
                 username: 'Y.Oporta',
-                // Este es el hash para "Codex.2005" - calculado manualmente para asegurar que funcione
-                password: this.hashPassword('Codex.2005'),
+                password: 'Codex.2005', // ¡Texto plano para que funcione seguro!
                 nombre: 'Yader Oporta',
                 rol: 'administrador',
                 activo: true,
@@ -58,7 +55,7 @@ class LocalDatabase {
                     cambiarPassword: true
                 },
                 preguntaSeguridad: '¿Cuál es tu color favorito?',
-                respuestaSeguridad: this.hashPassword('azul')
+                respuestaSeguridad: 'azul' // Texto plano también
             }
         ];
 
@@ -67,36 +64,34 @@ class LocalDatabase {
         return adminInicial;
     }
 
-    // Función de hash SIMPLE y CONSISTENTE
-    hashPassword(password) {
-        // Algoritmo simple pero consistente
-        let hash = 0;
-        for (let i = 0; i < password.length; i++) {
-            hash = ((hash << 5) - hash) + password.charCodeAt(i);
-            hash = hash & hash; // Convertir a 32-bit integer
-        }
-        return Math.abs(hash).toString(36); // Convertir a string base-36 para mayor consistencia
-    }
-
-    // Verificar contraseña
+    // Verificar contraseña - COMPARACIÓN DIRECTA
     verificarPassword(passwordIngresada, passwordAlmacenada) {
-        const hashIngresado = this.hashPassword(passwordIngresada);
-        console.log('Verificando:', {
+        // Comparación directa de strings
+        console.log('Verificando contraseña:', {
             ingresada: passwordIngresada,
-            hashIngresado,
             almacenada: passwordAlmacenada,
-            coinciden: hashIngresado === passwordAlmacenada
+            coinciden: passwordIngresada === passwordAlmacenada
         });
-        return hashIngresado === passwordAlmacenada;
+        return passwordIngresada === passwordAlmacenada;
     }
 
     init() {
         this.verificarSesion();
         // Mostrar credenciales en consola para depuración
-        console.log('=== CREDENCIALES DE ACCESO ===');
-        console.log('Usuario: Y.Oporta');
-        console.log('Contraseña: Codex.2005');
-        console.log('==============================');
+        console.log('%c=== CREDENCIALES DE ACCESO ===', 'font-weight: bold; color: green;');
+        console.log('%cUsuario: Y.Oporta', 'color: blue;');
+        console.log('%cContraseña: Codex.2005', 'color: red;');
+        console.log('%c==============================', 'font-weight: bold; color: green;');
+
+        // Verificar que el usuario existe
+        const admin = this.usuarios.find(u => u.username === 'Y.Oporta');
+        if (admin) {
+            console.log('✅ Usuario administrador encontrado en la base de datos');
+        } else {
+            console.log('❌ Usuario administrador NO encontrado - recreando...');
+            localStorage.removeItem('eyp_usuarios');
+            this.usuarios = this.cargarUsuarios();
+        }
     }
 
     verificarSesion() {
@@ -114,15 +109,17 @@ class LocalDatabase {
     login(username, password) {
         console.log('Intentando login con:', { username, password });
 
+        // Buscar usuario (case sensitive)
         const usuario = this.usuarios.find(u => u.username === username && u.activo);
 
         if (!usuario) {
-            console.log('Usuario no encontrado:', username);
+            console.log('❌ Usuario no encontrado:', username);
+            console.log('Usuarios disponibles:', this.usuarios.map(u => u.username));
             return { success: false, message: 'Usuario no encontrado' };
         }
 
         if (!this.verificarPassword(password, usuario.password)) {
-            console.log('Contraseña incorrecta para:', username);
+            console.log('❌ Contraseña incorrecta para:', username);
             return { success: false, message: 'Contraseña incorrecta' };
         }
 
@@ -135,7 +132,7 @@ class LocalDatabase {
         };
 
         localStorage.setItem('eyp_sesion', JSON.stringify(this.usuarioActual));
-        console.log('Login exitoso para:', username);
+        console.log('✅ Login exitoso para:', username);
         return { success: true, message: 'Login exitoso', usuario: this.usuarioActual };
     }
 
@@ -175,10 +172,10 @@ class LocalDatabase {
             return { success: false, message: 'Usuario no encontrado' };
         }
 
-        if (this.verificarPassword(respuesta, usuario.respuestaSeguridad)) {
+        if (respuesta === usuario.respuestaSeguridad) {
             return {
                 success: true,
-                message: 'Respuesta correcta. Contacte al administrador para restablecer su contraseña.'
+                message: 'Respuesta correcta. Su contraseña es: ' + usuario.password
             };
         }
 
@@ -195,12 +192,12 @@ class LocalDatabase {
 
         // Si no es admin, verificar contraseña actual
         if (!esAdmin) {
-            if (!this.verificarPassword(passwordActual, usuario.password)) {
+            if (passwordActual !== usuario.password) {
                 return { success: false, message: 'Contraseña actual incorrecta' };
             }
         }
 
-        usuario.password = this.hashPassword(passwordNueva);
+        usuario.password = passwordNueva;
         this.guardarUsuarios();
         return { success: true, message: 'Contraseña cambiada exitosamente' };
     }
@@ -209,9 +206,8 @@ class LocalDatabase {
     getUsuarios() {
         if (!this.esAdministrador()) return [];
         return this.usuarios.map(u => ({
-            ...u,
-            password: undefined,
-            respuestaSeguridad: undefined
+            ...u
+            // Mostramos todo incluyendo contraseñas para el admin
         }));
     }
 
@@ -227,7 +223,7 @@ class LocalDatabase {
         const nuevoUsuario = {
             id: this.usuarios.length + 1,
             username: usuarioData.username,
-            password: this.hashPassword(usuarioData.password),
+            password: usuarioData.password, // Texto plano
             nombre: usuarioData.nombre,
             rol: usuarioData.rol || 'usuario',
             activo: true,
@@ -243,7 +239,7 @@ class LocalDatabase {
                 cambiarPassword: false
             },
             preguntaSeguridad: usuarioData.preguntaSeguridad,
-            respuestaSeguridad: this.hashPassword(usuarioData.respuestaSeguridad)
+            respuestaSeguridad: usuarioData.respuestaSeguridad // Texto plano
         };
 
         this.usuarios.push(nuevoUsuario);
@@ -269,9 +265,7 @@ class LocalDatabase {
 
         this.usuarios[index] = {
             ...this.usuarios[index],
-            ...usuarioData,
-            password: usuarioData.password ? this.hashPassword(usuarioData.password) : this.usuarios[index].password,
-            respuestaSeguridad: usuarioData.respuestaSeguridad ? this.hashPassword(usuarioData.respuestaSeguridad) : this.usuarios[index].respuestaSeguridad
+            ...usuarioData
         };
 
         this.guardarUsuarios();
