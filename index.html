@@ -1,0 +1,2393 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>Sistema de Produccion EYP</title>
+    <style>
+        :root {
+            --charcoal: #2c3e50;
+            --blanco: #ffffff;
+            --verde-claro: #e8f5e9;
+            --verde-texto: #2e7d32;
+            --celeste-claro: #e3f2fd;
+            --celeste-texto: #1565c0;
+            --gris-fondo: #f8f9fa;
+            --gris-borde: #dddddd;
+            --rojo-claro: #ffebee;
+            --rojo-texto: #c62828;
+            --amarillo-claro: #fff9c4;
+            --amarillo-texto: #fbc02d;
+            --gris-oscuro: #34495e;
+            --sombra: rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 15px;
+            background: var(--blanco);
+            color: var(--charcoal);
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        /* Notificaciones con estilo transparente */
+        .notificacion {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            z-index: 9999;
+            animation: slideIn 0.3s ease-out;
+            max-width: 350px;
+            border: none;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .notificacion.exito {
+            background: rgba(46, 125, 50, 0.9);
+            border-left: 5px solid #1b5e20;
+        }
+
+        .notificacion.error {
+            background: rgba(198, 40, 40, 0.9);
+            border-left: 5px solid #b71c1c;
+        }
+
+        .notificacion.advertencia {
+            background: rgba(251, 192, 45, 0.9);
+            color: var(--charcoal);
+            border-left: 5px solid #f57f17;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Responsive para móviles */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .notificacion {
+                max-width: 90%;
+                right: 5%;
+                font-size: 13px;
+                padding: 12px 18px;
+            }
+
+            .tabs {
+                flex-wrap: wrap;
+            }
+
+            .tab-btn {
+                flex: 1 1 auto;
+                padding: 10px 12px;
+                font-size: 11px;
+            }
+
+            .grid-form {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .table-container {
+                overflow-x: auto;
+            }
+
+            .modal-content {
+                width: 95%;
+                padding: 15px;
+            }
+
+            .edit-registros-tabla {
+                font-size: 10px;
+            }
+
+            .edit-registros-tabla input {
+                font-size: 10px;
+                padding: 4px;
+            }
+
+            .btn-action {
+                width: auto;
+                padding: 5px 8px;
+                font-size: 10px;
+            }
+
+            .user-header {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+
+            .login-container {
+                width: 90%;
+                margin: 30px auto;
+                padding: 20px;
+            }
+        }
+
+        /* Login */
+        .login-container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 30px;
+            border: 1px solid var(--gris-borde);
+            background: var(--gris-fondo);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px var(--sombra);
+        }
+
+        .login-container h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            border-left: none;
+        }
+
+        .login-container input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid var(--gris-borde);
+            box-sizing: border-box;
+            border-radius: 4px;
+        }
+
+        .login-container button {
+            width: 100%;
+            padding: 12px;
+            background: var(--charcoal);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            border-radius: 4px;
+        }
+
+        .login-footer {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .login-footer a {
+            color: var(--celeste-texto);
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* Header con usuario */
+        .user-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--gris-borde);
+            flex-wrap: wrap;
+        }
+
+        .user-info {
+            font-size: 14px;
+        }
+
+        .user-info strong {
+            color: var(--celeste-texto);
+        }
+
+        .logout-btn {
+            padding: 8px 15px;
+            background: var(--rojo-claro);
+            color: var(--rojo-texto);
+            border: 1px solid var(--rojo-texto);
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        /* Tabs Navigation */
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--gris-borde);
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 12px 25px;
+            cursor: pointer;
+            background: var(--gris-fondo);
+            border: none;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 12px;
+            color: var(--charcoal);
+            border-radius: 4px 4px 0 0;
+        }
+
+        .tab-btn.active {
+            background: var(--charcoal);
+            color: var(--blanco);
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        h2 {
+            text-align: left;
+            color: var(--charcoal);
+            text-transform: uppercase;
+            font-weight: 300;
+            letter-spacing: 1px;
+            border-left: 5px solid var(--verde-texto);
+            padding-left: 15px;
+            margin-bottom: 25px;
+        }
+
+        .top-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 10px 18px;
+            border: 1px solid var(--gris-borde);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px var(--sombra);
+        }
+
+        .btn-add {
+            background: var(--verde-claro);
+            color: var(--verde-texto);
+            border-color: var(--verde-texto);
+        }
+
+        .btn-group {
+            background: var(--charcoal);
+            color: var(--blanco);
+            border-color: var(--charcoal);
+        }
+
+        .btn-export {
+            background: var(--gris-fondo);
+            color: var(--charcoal);
+            border-color: var(--charcoal);
+        }
+
+        .btn-admin {
+            background: var(--celeste-claro);
+            color: var(--celeste-texto);
+            border-color: var(--celeste-texto);
+        }
+
+        /* Buscadores */
+        .search-container {
+            margin-bottom: 20px;
+            background: var(--gris-fondo);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--gris-borde);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--gris-borde);
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .filter-item {
+            flex: 1 1 200px;
+        }
+
+        .filter-item label {
+            display: block;
+            font-size: 11px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: var(--charcoal);
+        }
+
+        .filter-item input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--gris-borde);
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        /* Tablas */
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+            background: white;
+            margin-top: 10px;
+            border: 1px solid var(--gris-borde);
+            border-radius: 8px;
+            box-shadow: 0 2px 5px var(--sombra);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1000px;
+        }
+
+        th {
+            background: var(--charcoal);
+            color: white;
+            padding: 12px 10px;
+            font-size: 10px;
+            text-align: left;
+            white-space: nowrap;
+            font-weight: normal;
+        }
+
+        td {
+            padding: 10px;
+            font-size: 12px;
+            border-bottom: 1px solid var(--gris-borde);
+            white-space: nowrap;
+        }
+
+        tr:hover {
+            background-color: var(--celeste-claro);
+        }
+
+        .btn-action {
+            width: 65px;
+            padding: 5px 0;
+            text-align: center;
+            margin: 2px;
+            display: inline-block;
+        }
+
+        /* Formulario */
+        .form-container {
+            display: none;
+            background: var(--gris-fondo);
+            padding: 20px;
+            border: 1px solid var(--gris-borde);
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        .grid-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 15px;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-group label {
+            font-size: 10px;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 3px;
+            color: var(--charcoal);
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--gris-borde);
+            box-sizing: border-box;
+            font-size: 12px;
+            border-radius: 4px;
+        }
+
+        .form-group input.autocompletado {
+            border-left: 4px solid var(--verde-texto);
+            background-color: var(--verde-claro);
+        }
+
+        /* Sugerencias */
+        .sugerencias {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid var(--gris-borde);
+            max-height: 150px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            border-radius: 4px;
+            box-shadow: 0 4px 8px var(--sombra);
+        }
+
+        .sugerencias div {
+            padding: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            border-bottom: 1px solid var(--gris-borde);
+        }
+
+        .sugerencias div:hover {
+            background: var(--celeste-claro);
+        }
+
+        /* Card de Grupo Histórico */
+        .group-card {
+            border: 1px solid var(--gris-borde);
+            margin-bottom: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px var(--sombra);
+        }
+
+        .group-header {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            border-bottom: 1px solid var(--gris-borde);
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+
+        @media (min-width: 769px) {
+            .group-header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+        }
+
+        .group-code {
+            font-weight: bold;
+            color: var(--celeste-texto);
+            font-size: 16px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 20px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 1px solid var(--gris-borde);
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-lg {
+            max-width: 1400px;
+            width: 95%;
+        }
+
+        /* Estilos para edición de registros */
+        .edit-registros-container {
+            max-height: 400px;
+            overflow-y: auto;
+            margin: 15px 0;
+            border: 1px solid var(--gris-borde);
+            background: white;
+            border-radius: 4px;
+        }
+
+        .edit-registros-tabla {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+            min-width: 1200px;
+        }
+
+        .edit-registros-tabla th {
+            background: var(--charcoal);
+            color: white;
+            padding: 10px 5px;
+            text-align: left;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            white-space: nowrap;
+        }
+
+        .edit-registros-tabla td {
+            padding: 8px 5px;
+            border-bottom: 1px solid var(--gris-borde);
+        }
+
+        .edit-registros-tabla input {
+            width: 100%;
+            padding: 6px;
+            border: 1px solid var(--gris-borde);
+            box-sizing: border-box;
+            font-size: 11px;
+            border-radius: 3px;
+        }
+
+        .btn-eliminar-registro {
+            background: var(--rojo-claro);
+            color: var(--rojo-texto);
+            border: 1px solid var(--rojo-texto);
+            padding: 4px 8px;
+            font-size: 10px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+
+        .btn-agregar-registro {
+            background: var(--verde-claro);
+            color: var(--verde-texto);
+            border: 1px solid var(--verde-texto);
+            padding: 10px 15px;
+            margin-top: 10px;
+            width: 100%;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        /* Tabla de detalles */
+        .detalle-tabla-container {
+            overflow-x: auto;
+            max-height: 500px;
+            overflow-y: auto;
+            border: 1px solid var(--gris-borde);
+            border-radius: 4px;
+        }
+
+        .detalle-tabla-container th {
+            position: sticky;
+            top: 0;
+            background: var(--charcoal);
+            color: white;
+            z-index: 10;
+        }
+
+        /* Tabla de usuarios */
+        .usuarios-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            min-width: 800px;
+        }
+
+        .usuarios-table th {
+            background: var(--charcoal);
+            color: white;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .usuarios-table td {
+            padding: 8px 10px;
+            border-bottom: 1px solid var(--gris-borde);
+        }
+
+        .permiso-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            font-size: 10px;
+            margin: 2px;
+            border-radius: 3px;
+        }
+
+        .permiso-activo {
+            background: var(--verde-claro);
+            color: var(--verde-texto);
+            border: 1px solid var(--verde-texto);
+        }
+
+        .permiso-inactivo {
+            background: var(--gris-fondo);
+            color: var(--gris-oscuro);
+            border: 1px solid var(--gris-borde);
+        }
+
+        /* Admin DB Tables */
+        .admin-db-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .admin-db-table th {
+            background: var(--charcoal);
+            color: white;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .admin-db-table td {
+            padding: 8px;
+            border-bottom: 1px solid var(--gris-borde);
+        }
+
+        .admin-db-table input {
+            width: 100%;
+            padding: 6px;
+            border: 1px solid var(--gris-borde);
+            border-radius: 3px;
+        }
+
+        .btn-small {
+            padding: 5px 10px;
+            font-size: 10px;
+            margin: 0 2px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="notificacionContainer"></div>
+    <div id="app"></div>
+
+    <!-- Incluir la base de datos -->
+    <script src="database.js"></script>
+
+    <script>
+        // Estado de la aplicación
+        let datosDiarios = JSON.parse(localStorage.getItem("eyp_diario")) || [];
+        let historialGrupos = JSON.parse(localStorage.getItem("eyp_historial")) || [];
+        let contadorGrupo = parseInt(localStorage.getItem("eyp_contador")) || 1;
+
+        // Variables para autocompletado
+        let timeoutId;
+        let currentEditMode = false;
+
+        // Función para mostrar notificaciones
+        window.mostrarNotificacion = function (mensaje, tipo = 'exito') {
+            const container = document.getElementById('notificacionContainer');
+            const notificacion = document.createElement('div');
+            notificacion.className = `notificacion ${tipo}`;
+            notificacion.textContent = mensaje;
+
+            container.appendChild(notificacion);
+
+            setTimeout(() => {
+                notificacion.style.animation = 'slideIn 0.3s ease-out reverse';
+                setTimeout(() => {
+                    container.removeChild(notificacion);
+                }, 300);
+            }, 3000);
+        };
+
+        // Función para confirmar acciones
+        function confirmarAccion(mensaje, callback) {
+            if (confirm(mensaje)) {
+                callback();
+                return true;
+            }
+            return false;
+        }
+
+        // Comandos de teclado
+        document.addEventListener('keydown', function (e) {
+            if (e.ctrlKey && e.key === 'g') {
+                e.preventDefault();
+                if (currentEditMode) {
+                    guardarEdicionRegistros();
+                } else {
+                    guardar();
+                }
+            }
+            if (e.ctrlKey && e.key === 'n') {
+                e.preventDefault();
+                if (currentEditMode) {
+                    agregarRegistroVacio();
+                } else {
+                    abrirFormulario();
+                }
+            }
+            if (e.ctrlKey && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) {
+                e.preventDefault();
+                navegarEntreCampos(e.key === 'ArrowRight' ? 1 : -1);
+            }
+        });
+
+        function navegarEntreCampos(direccion) {
+            const inputs = document.querySelectorAll('#formulario input:not([readonly]), .edit-registros-tabla input:not([readonly])');
+            if (inputs.length === 0) return;
+
+            let currentIndex = -1;
+            for (let i = 0; i < inputs.length; i++) {
+                if (document.activeElement === inputs[i]) {
+                    currentIndex = i;
+                    break;
+                }
+            }
+
+            let newIndex = currentIndex + direccion;
+            if (newIndex >= 0 && newIndex < inputs.length) {
+                inputs[newIndex].focus();
+            }
+        }
+
+        // Renderizar la aplicación según el estado de sesión
+        function renderizarApp() {
+            const app = document.getElementById('app');
+
+            if (!db.haySesion()) {
+                mostrarLogin();
+            } else {
+                mostrarSistema();
+            }
+        }
+
+        // Mostrar pantalla de login
+        function mostrarLogin() {
+            const app = document.getElementById('app');
+            app.innerHTML = `
+                <div class="login-container">
+                    <h2>Sistema de Producción EYP</h2>
+                    <input type="text" id="login-username" placeholder="Usuario">
+                    <input type="password" id="login-password" placeholder="Contraseña">
+                    <button onclick="iniciarSesion()">Ingresar</button>
+                    <div class="login-footer">
+                        <a onclick="mostrarRecuperarPassword()">¿Olvidó su contraseña?</a>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Iniciar sesión
+        window.iniciarSesion = function () {
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+
+            const resultado = db.login(username, password);
+
+            if (resultado.success) {
+                mostrarNotificacion('Bienvenido ' + resultado.usuario.nombre, 'exito');
+                renderizarApp();
+            } else {
+                mostrarNotificacion(resultado.message, 'error');
+            }
+        };
+
+        // Mostrar formulario de recuperación de contraseña
+        window.mostrarRecuperarPassword = function () {
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'flex';
+
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <h3>Recuperar Contraseña</h3>
+                    <div class="form-group">
+                        <label>Usuario</label>
+                        <input type="text" id="rec-username" style="width:100%; padding:8px; border:1px solid var(--gris-borde);">
+                    </div>
+                    <div class="form-group" style="margin-top:10px;">
+                        <label>Respuesta de seguridad</label>
+                        <input type="text" id="rec-respuesta" style="width:100%; padding:8px; border:1px solid var(--gris-borde);">
+                    </div>
+                    <div style="margin-top:20px; display:flex; gap:10px; justify-content:flex-end;">
+                        <button onclick="recuperarPassword()" style="padding:10px; background:var(--celeste-texto); color:white; border:none; cursor:pointer;">Recuperar</button>
+                        <button onclick="this.closest('.modal').remove()" style="padding:10px; background:var(--gris-fondo); border:1px solid var(--gris-borde); cursor:pointer;">Cancelar</button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+        };
+
+        // Recuperar contraseña
+        window.recuperarPassword = function () {
+            const username = document.getElementById('rec-username').value;
+            const respuesta = document.getElementById('rec-respuesta').value;
+
+            const resultado = db.recuperarPassword(username, respuesta);
+
+            if (resultado.success) {
+                alert('Respuesta correcta. Contacte al administrador para restablecer su contraseña.');
+                document.querySelector('.modal').remove();
+            } else {
+                mostrarNotificacion(resultado.message, 'error');
+            }
+        };
+
+        // Cerrar sesión
+        window.cerrarSesion = function () {
+            confirmarAccion('¿Cerrar sesión?', () => {
+                db.cerrarSesion();
+                renderizarApp();
+            });
+        };
+
+        // Cambiar contraseña
+        window.mostrarCambiarPassword = function (esAdmin = false) {
+            const usuario = db.getUsuarioActual();
+
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'flex';
+
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <h3>Cambiar Contraseña</h3>
+                    ${!esAdmin ? `
+                    <div class="form-group">
+                        <label>Contraseña actual</label>
+                        <input type="password" id="cambiar-password-actual" style="width:100%; padding:8px; border:1px solid var(--gris-borde);">
+                    </div>
+                    ` : ''}
+                    <div class="form-group" style="margin-top:10px;">
+                        <label>Nueva contraseña</label>
+                        <input type="password" id="cambiar-password-nueva" style="width:100%; padding:8px; border:1px solid var(--gris-borde);">
+                    </div>
+                    <div class="form-group" style="margin-top:10px;">
+                        <label>Confirmar nueva contraseña</label>
+                        <input type="password" id="cambiar-password-confirmar" style="width:100%; padding:8px; border:1px solid var(--gris-borde);">
+                    </div>
+                    <div style="margin-top:20px; display:flex; gap:10px; justify-content:flex-end;">
+                        <button onclick="cambiarPassword(${esAdmin})" style="padding:10px; background:var(--verde-texto); color:white; border:none; cursor:pointer;">Cambiar</button>
+                        <button onclick="this.closest('.modal').remove()" style="padding:10px; background:var(--gris-fondo); border:1px solid var(--gris-borde); cursor:pointer;">Cancelar</button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+        };
+
+        window.cambiarPassword = function (esAdmin = false) {
+            const usuario = db.getUsuarioActual();
+            const actual = esAdmin ? '' : document.getElementById('cambiar-password-actual').value;
+            const nueva = document.getElementById('cambiar-password-nueva').value;
+            const confirmar = document.getElementById('cambiar-password-confirmar').value;
+
+            if (nueva !== confirmar) {
+                mostrarNotificacion('Las contraseñas nuevas no coinciden', 'error');
+                return;
+            }
+
+            const resultado = db.cambiarPassword(usuario.username, actual, nueva, esAdmin);
+
+            if (resultado.success) {
+                mostrarNotificacion(resultado.message, 'exito');
+                document.querySelector('.modal').remove();
+            } else {
+                mostrarNotificacion(resultado.message, 'error');
+            }
+        };
+
+        // Mostrar sistema principal
+        function mostrarSistema() {
+            const usuario = db.getUsuarioActual();
+            const esAdmin = db.esAdministrador();
+            const puedeCambiarPassword = db.tienePermiso('cambiarPassword') || esAdmin;
+
+            const app = document.getElementById('app');
+            app.innerHTML = `
+                <div class="user-header">
+                    <div class="user-info">
+                        Usuario: <strong>${usuario.nombre}</strong> (${usuario.rol})
+                    </div>
+                    <div>
+                        ${puedeCambiarPassword ? '<button class="btn-edit" onclick="mostrarCambiarPassword(false)" style="margin-right:10px;">Cambiar Contraseña</button>' : ''}
+                        <button class="logout-btn" onclick="cerrarSesion()">Cerrar Sesión</button>
+                    </div>
+                </div>
+
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab(\'control\')">Control de Producción</button>
+                    ${db.tienePermiso('verHistorialGrupos') ? '<button class="tab-btn" onclick="switchTab(\'planilla\')">Grupos Planilla</button>' : ''}
+                </div>
+
+                <section id="control" class="content-section active">
+                    <h2>Control de Producción Diario</h2>
+
+                    <div class="top-buttons">
+                        ${db.tienePermiso('agregarRegistros') ? '<button class="btn-add" onclick="abrirFormulario()">+ Nuevo Registro</button>' : ''}
+                        <button class="btn-group" onclick="abrirModalGrupo()">Guardar como Grupo</button>
+                        ${db.tienePermiso('exportarExcel') ? '<button class="btn-export" onclick="exportarExcel()">Exportar Excel</button>' : ''}
+                        ${db.tienePermiso('verAdminDB') ? '<button class="btn-admin" onclick="mostrarPanelAdminDB()">Admin DB</button>' : ''}
+                        ${db.tienePermiso('gestionarUsuarios') ? '<button class="btn-admin" onclick="mostrarPanelUsuarios()">Admin Usuarios</button>' : ''}
+                    </div>
+
+                    <!-- Buscador para Control de Producción -->
+                    <div class="search-container">
+                        <input type="text" id="buscarDiario" class="search-input" placeholder="Buscar por código, nombre o actividad...">
+                    </div>
+
+                    <div class="form-container" id="formulario">
+                        <h3 style="margin-top:0; color:var(--charcoal);">Nuevo Registro</h3>
+                        <input type="hidden" id="editIndex">
+                        <div class="grid-form">
+                            <div class="form-group" id="grupo-codigo">
+                                <label>CODIGO TRAB. *</label>
+                                <input type="text" id="codigo" placeholder="Ingrese código" autocomplete="off">
+                                <div class="sugerencias" id="sugerencias-trabajador"></div>
+                            </div>
+                            <div class="form-group">
+                                <label>NOMBRE *</label>
+                                <input type="text" id="nombre" placeholder="Se autocompletará" readonly>
+                            </div>
+                            <div class="form-group" id="grupo-cod-act">
+                                <label>COD. ACT *</label>
+                                <input type="text" id="codActividad" placeholder="Ingrese código" autocomplete="off">
+                                <div class="sugerencias" id="sugerencias-actividad"></div>
+                            </div>
+                            <div class="form-group">
+                                <label>ACTIVIDAD *</label>
+                                <input type="text" id="actividad" placeholder="Se autocompletará" readonly>
+                            </div>
+                            <div class="form-group"><label>PROD.</label><input type="number" id="produccion" placeholder="0"></div>
+                            <div class="form-group"><label>LOTE</label><input type="text" id="lote" placeholder="N° lote"></div>
+                            <div class="form-group"><label>HA</label><input type="number" id="hectareas" step="0.01" placeholder="0.00"></div>
+                            <div class="form-group"><label>AÑO</label><input type="number" id="anio" placeholder="2024"></div>
+                            <div class="form-group"><label>DIA</label><input type="text" id="dia" placeholder="Ej: Lunes"></div>
+                            <div class="form-group"><label>AVANCE</label><input type="text" id="avance" placeholder="% o descripción"></div>
+                            <div class="form-group"><label>H. ENT</label><input type="time" id="hEntrada"></div>
+                            <div class="form-group"><label>H. SAL</label><input type="time" id="hSalida"></div>
+                            <div class="form-group"><label>H. ORD</label><input type="number" id="hOrdinarias" step="0.5" placeholder="0.0"></div>
+                            <div class="form-group"><label>H. EXT</label><input type="number" id="hExtras" step="0.5" placeholder="0.0"></div>
+                        </div>
+                        <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
+                            <button class="btn-add" onclick="guardar()">Guardar Registro</button>
+                            <button onclick="limpiar()" style="background:var(--gris-fondo);">Cancelar</button>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table id="tabla">
+                            <thead>
+                                <tr>
+                                    <th>COD</th>
+                                    <th>NOMBRE</th>
+                                    <th>COD.ACT</th>
+                                    <th>ACTIVIDAD</th>
+                                    <th>PROD</th>
+                                    <th>LOTE</th>
+                                    <th>HA</th>
+                                    <th>AÑO</th>
+                                    <th>DIA</th>
+                                    <th>AVANCE</th>
+                                    <th>H.ENT</th>
+                                    <th>H.SAL</th>
+                                    <th>H.ORD</th>
+                                    <th>H.EXT</th>
+                                    <th>ACCIONES</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaCuerpo"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                ${db.tienePermiso('verHistorialGrupos') ? `
+                <section id="planilla" class="content-section">
+                    <h2>Historial de Grupos Planilla</h2>
+                    
+                    <!-- Buscador y Filtro por Fecha para Historial -->
+                    <div class="search-container">
+                        <input type="text" id="buscarHistorial" class="search-input" placeholder="Buscar por ID, encargado o creador...">
+                        <div class="filter-group">
+                            <div class="filter-item">
+                                <label>Fecha Desde</label>
+                                <input type="date" id="filtroFechaDesde">
+                            </div>
+                            <div class="filter-item">
+                                <label>Fecha Hasta</label>
+                                <input type="date" id="filtroFechaHasta">
+                            </div>
+                            <div class="filter-item" style="display: flex; align-items: flex-end;">
+                                <button onclick="aplicarFiltrosHistorial()" class="btn-export" style="width:100%;">Filtrar</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="listaGrupos"></div>
+                </section>
+                ` : ''}
+
+                <!-- Modal para datos del encargado -->
+                <div id="modalGrupo" class="modal">
+                    <div class="modal-content">
+                        <h3 id="tituloModalGrupo">Datos del Encargado</h3>
+                        <input type="hidden" id="editGrupoIndex">
+                        <input type="hidden" id="grupoCreador" value="${usuario.username}">
+                        <div class="form-group"><label>CODIGO ENCARGADO *</label><input type="text" id="encCodigo" placeholder="Ingrese código"></div>
+                        <div class="form-group" style="margin-top:10px"><label>NOMBRE ENCARGADO *</label><input type="text" id="encNombre" placeholder="Nombre completo"></div>
+                        <div style="margin-top:20px; display:flex; gap:10px; justify-content:flex-end;">
+                            <button class="btn-group" id="btnConfirmarGrupo" onclick="finalizarGuardarGrupo()">Confirmar</button>
+                            <button onclick="cerrarModalGrupo()">Cancelar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal para ver detalles del grupo -->
+                <div id="modalDetalleGrupo" class="modal">
+                    <div class="modal-content modal-lg">
+                        <h3 id="detGrupoTitulo">Detalles del Grupo</h3>
+                        <div id="detGrupoEncargado" style="margin-bottom:15px; font-size:13px; padding:10px; background:var(--gris-fondo);"></div>
+                        <div class="detalle-tabla-container">
+                            <table id="tablaDetalleGrupo">
+                                <thead>
+                                    <tr>
+                                        <th>COD</th>
+                                        <th>NOMBRE</th>
+                                        <th>COD.ACT</th>
+                                        <th>ACTIVIDAD</th>
+                                        <th>PROD</th>
+                                        <th>LOTE</th>
+                                        <th>HA</th>
+                                        <th>AÑO</th>
+                                        <th>DIA</th>
+                                        <th>AVANCE</th>
+                                        <th>H.ENT</th>
+                                        <th>H.SAL</th>
+                                        <th>H.ORD</th>
+                                        <th>H.EXT</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="cuerpoDetalleGrupo"></tbody>
+                            </table>
+                        </div>
+                        <button onclick="cerrarModalDetalle()" style="width:100%; margin-top:20px; padding:12px; background: var(--charcoal); color:white; border:none; cursor:pointer;">Cerrar</button>
+                    </div>
+                </div>
+
+                <!-- Modal para editar registros del grupo -->
+                <div id="modalEditarRegistrosGrupo" class="modal">
+                    <div class="modal-content modal-lg">
+                        <h3 id="editRegistrosTitulo" style="color:var(--charcoal); margin-bottom:15px;">Editando Registros del Grupo</h3>
+                        <input type="hidden" id="editRegistrosGrupoIndex">
+                        
+                        <div class="edit-registros-container">
+                            <table class="edit-registros-tabla" id="editRegistrosTabla">
+                                <thead>
+                                    <tr>
+                                        <th>CODIGO</th>
+                                        <th>NOMBRE</th>
+                                        <th>COD.ACT</th>
+                                        <th>ACTIVIDAD</th>
+                                        <th>PROD</th>
+                                        <th>LOTE</th>
+                                        <th>HA</th>
+                                        <th>AÑO</th>
+                                        <th>DIA</th>
+                                        <th>AVANCE</th>
+                                        <th>H.ENT</th>
+                                        <th>H.SAL</th>
+                                        <th>H.ORD</th>
+                                        <th>H.EXT</th>
+                                        <th>ACCIÓN</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="editRegistrosBody">
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <button class="btn-agregar-registro" onclick="agregarRegistroVacio()">
+                            + Agregar Nuevo Registro
+                        </button>
+                        
+                        <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                            <button class="btn-add" onclick="guardarEdicionRegistros()">Guardar Cambios</button>
+                            <button onclick="cerrarModalEditarRegistros()" style="background:var(--gris-fondo);">Cancelar</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Configurar eventos de autocompletado
+            configurarAutocompletado();
+
+            // Configurar buscador en tiempo real
+            const inputBuscarDiario = document.getElementById('buscarDiario');
+            if (inputBuscarDiario) {
+                inputBuscarDiario.addEventListener('input', () => renderizarDiario());
+            }
+
+            // Renderizar datos
+            renderizarDiario();
+            if (db.tienePermiso('verHistorialGrupos')) {
+                renderizarHistorial();
+            }
+        }
+
+        // Configurar eventos de autocompletado
+        function configurarAutocompletado() {
+            const inputCodigo = document.getElementById('codigo');
+            const inputCodActividad = document.getElementById('codActividad');
+
+            if (inputCodigo) {
+                inputCodigo.addEventListener('input', function () {
+                    clearTimeout(timeoutId);
+                    const valor = this.value;
+                    timeoutId = setTimeout(() => {
+                        const trabajador = db.buscarTrabajador(valor);
+                        if (trabajador) {
+                            document.getElementById('nombre').value = trabajador.nombre;
+                            document.getElementById('nombre').classList.add('autocompletado');
+                            ocultarSugerencias('trabajador');
+                        } else {
+                            document.getElementById('nombre').value = '';
+                            document.getElementById('nombre').classList.remove('autocompletado');
+                            mostrarSugerenciasTrabajador(valor);
+                        }
+                    }, 300);
+                });
+            }
+
+            if (inputCodActividad) {
+                inputCodActividad.addEventListener('input', function () {
+                    clearTimeout(timeoutId);
+                    const valor = this.value;
+                    timeoutId = setTimeout(() => {
+                        const actividad = db.buscarActividad(valor);
+                        if (actividad) {
+                            document.getElementById('actividad').value = actividad.nombre;
+                            document.getElementById('actividad').classList.add('autocompletado');
+                            ocultarSugerencias('actividad');
+                        } else {
+                            document.getElementById('actividad').value = '';
+                            document.getElementById('actividad').classList.remove('autocompletado');
+                            mostrarSugerenciasActividad(valor);
+                        }
+                    }, 300);
+                });
+            }
+        }
+
+        function mostrarSugerenciasTrabajador(termino) {
+            const sugerencias = document.getElementById('sugerencias-trabajador');
+            if (!sugerencias) return;
+
+            const filtrados = db.buscarTrabajadoresPorNombreOMatch(termino);
+
+            if (filtrados.length === 0) {
+                sugerencias.style.display = 'none';
+                return;
+            }
+
+            sugerencias.innerHTML = '';
+            filtrados.forEach(t => {
+                const div = document.createElement('div');
+                div.innerHTML = `<strong>${t.codigo}</strong> - ${t.nombre}`;
+                div.onclick = () => {
+                    document.getElementById('codigo').value = t.codigo;
+                    document.getElementById('nombre').value = t.nombre;
+                    document.getElementById('nombre').classList.add('autocompletado');
+                    sugerencias.style.display = 'none';
+                };
+                sugerencias.appendChild(div);
+            });
+
+            sugerencias.style.display = 'block';
+        }
+
+        function mostrarSugerenciasActividad(termino) {
+            const sugerencias = document.getElementById('sugerencias-actividad');
+            if (!sugerencias) return;
+
+            const filtrados = db.buscarActividadesPorNombreOMatch(termino);
+
+            if (filtrados.length === 0) {
+                sugerencias.style.display = 'none';
+                return;
+            }
+
+            sugerencias.innerHTML = '';
+            filtrados.forEach(a => {
+                const div = document.createElement('div');
+                div.innerHTML = `<strong>${a.codigo}</strong> - ${a.nombre}`;
+                div.onclick = () => {
+                    document.getElementById('codActividad').value = a.codigo;
+                    document.getElementById('actividad').value = a.nombre;
+                    document.getElementById('actividad').classList.add('autocompletado');
+                    sugerencias.style.display = 'none';
+                };
+                sugerencias.appendChild(div);
+            });
+
+            sugerencias.style.display = 'block';
+        }
+
+        function ocultarSugerencias(tipo) {
+            const sugerencias = document.getElementById(`sugerencias-${tipo}`);
+            if (sugerencias) {
+                sugerencias.style.display = 'none';
+            }
+        }
+
+        // Funciones del sistema principal
+        function switchTab(tabId) {
+            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+            if (tabId === 'planilla') {
+                renderizarHistorial();
+            }
+            currentEditMode = false;
+        }
+
+        function abrirFormulario() {
+            document.getElementById("formulario").style.display = "block";
+            currentEditMode = false;
+            window.scrollTo({
+                top: document.getElementById("formulario").offsetTop,
+                behavior: 'smooth'
+            });
+        }
+
+        function guardar() {
+            const ids = ['codigo', 'nombre', 'codActividad', 'actividad', 'produccion', 'lote', 'hectareas', 'anio', 'dia', 'avance', 'hEntrada', 'hSalida', 'hOrdinarias', 'hExtras'];
+            let reg = {};
+            ids.forEach(id => reg[id] = document.getElementById(id).value);
+
+            if (!reg.nombre) {
+                mostrarNotificacion("El campo NOMBRE es obligatorio", 'error');
+                return;
+            }
+
+            if (!reg.actividad) {
+                mostrarNotificacion("El campo ACTIVIDAD es obligatorio", 'error');
+                return;
+            }
+
+            let idx = document.getElementById("editIndex").value;
+            if (idx === "") {
+                datosDiarios.push(reg);
+                mostrarNotificacion("Registro agregado exitosamente", 'exito');
+            } else {
+                if (!db.tienePermiso('editarRegistros')) {
+                    mostrarNotificacion('No tiene permiso para editar registros', 'error');
+                    return;
+                }
+                datosDiarios[idx] = reg;
+                mostrarNotificacion("Registro actualizado exitosamente", 'exito');
+            }
+
+            localStorage.setItem("eyp_diario", JSON.stringify(datosDiarios));
+            limpiar();
+            renderizarDiario();
+        }
+
+        function renderizarDiario() {
+            let tbody = document.getElementById("tablaCuerpo");
+            if (!tbody) return;
+
+            const filtro = document.getElementById('buscarDiario')?.value.toLowerCase() || '';
+
+            const datosFiltrados = datosDiarios.filter(d =>
+                d.codigo?.toLowerCase().includes(filtro) ||
+                d.nombre?.toLowerCase().includes(filtro) ||
+                d.actividad?.toLowerCase().includes(filtro)
+            );
+
+            tbody.innerHTML = "";
+            datosFiltrados.forEach((d, i) => {
+                const indexOriginal = datosDiarios.indexOf(d);
+                let acciones = '';
+                if (db.tienePermiso('editarRegistros')) {
+                    acciones += `<button class="btn-action btn-edit" onclick="editar(${indexOriginal})">Editar</button> `;
+                }
+                if (db.tienePermiso('eliminarRegistros')) {
+                    acciones += `<button class="btn-action btn-delete" onclick="eliminar(${indexOriginal})">Eliminar</button>`;
+                }
+
+                tbody.innerHTML += `
+                <tr>
+                    <td>${d.codigo || ''}</td>
+                    <td><strong>${d.nombre || ''}</strong></td>
+                    <td>${d.codActividad || ''}</td>
+                    <td>${d.actividad || ''}</td>
+                    <td>${d.produccion || ''}</td>
+                    <td>${d.lote || ''}</td>
+                    <td>${d.hectareas || ''}</td>
+                    <td>${d.anio || ''}</td>
+                    <td>${d.dia || ''}</td>
+                    <td>${d.avance || ''}</td>
+                    <td>${d.hEntrada || ''}</td>
+                    <td>${d.hSalida || ''}</td>
+                    <td>${d.hOrdinarias || ''}</td>
+                    <td>${d.hExtras || ''}</td>
+                    <td>${acciones}</td>
+                </tr>`;
+            });
+        }
+
+        function limpiar() {
+            document.querySelectorAll("#formulario input").forEach(i => {
+                i.value = "";
+                i.classList.remove('autocompletado');
+            });
+            document.getElementById("editIndex").value = "";
+            document.getElementById("formulario").style.display = "none";
+        }
+
+        function editar(i) {
+            if (!db.tienePermiso('editarRegistros')) {
+                mostrarNotificacion('No tiene permiso para editar registros', 'error');
+                return;
+            }
+
+            let d = datosDiarios[i];
+            const ids = ['codigo', 'nombre', 'codActividad', 'actividad', 'produccion', 'lote', 'hectareas', 'anio', 'dia', 'avance', 'hEntrada', 'hSalida', 'hOrdinarias', 'hExtras'];
+            ids.forEach(id => {
+                document.getElementById(id).value = d[id] || '';
+                if (d[id]) {
+                    document.getElementById(id).classList.add('autocompletado');
+                }
+            });
+            document.getElementById("editIndex").value = i;
+            abrirFormulario();
+        }
+
+        function eliminar(i) {
+            if (!db.tienePermiso('eliminarRegistros')) {
+                mostrarNotificacion('No tiene permiso para eliminar registros', 'error');
+                return;
+            }
+
+            confirmarAccion("¿Está seguro de eliminar este registro?", () => {
+                datosDiarios.splice(i, 1);
+                localStorage.setItem("eyp_diario", JSON.stringify(datosDiarios));
+                renderizarDiario();
+                mostrarNotificacion("Registro eliminado correctamente", 'exito');
+            });
+        }
+
+        // GRUPOS
+        function abrirModalGrupo() {
+            if (datosDiarios.length === 0) {
+                mostrarNotificacion("No hay registros para guardar en el grupo", 'error');
+                return;
+            }
+            document.getElementById("editGrupoIndex").value = "";
+            document.getElementById("encCodigo").value = "";
+            document.getElementById("encNombre").value = "";
+            document.getElementById("tituloModalGrupo").innerText = "Datos del Encargado";
+            document.getElementById("btnConfirmarGrupo").onclick = finalizarGuardarGrupo;
+            document.getElementById("modalGrupo").style.display = "flex";
+        }
+
+        function cerrarModalGrupo() {
+            document.getElementById("modalGrupo").style.display = "none";
+        }
+
+        function finalizarGuardarGrupo() {
+            let encCod = document.getElementById("encCodigo").value;
+            let encNom = document.getElementById("encNombre").value;
+            let creador = document.getElementById("grupoCreador").value;
+
+            if (!encCod || !encNom) {
+                mostrarNotificacion("Complete todos los datos del encargado", 'error');
+                return;
+            }
+
+            const usuario = db.getUsuarioActual();
+            let codigoGenerado = "E Y P " + contadorGrupo.toString().padStart(6, '0') + " " + usuario.username.charAt(0);
+
+            historialGrupos.unshift({
+                idGrupo: codigoGenerado,
+                fechaCreacion: new Date().toLocaleString(),
+                encargado: { codigo: encCod, nombre: encNom },
+                registros: [...datosDiarios],
+                creador: usuario.username,
+                creadorNombre: usuario.nombre
+            });
+
+            contadorGrupo++;
+            localStorage.setItem("eyp_historial", JSON.stringify(historialGrupos));
+            localStorage.setItem("eyp_contador", contadorGrupo);
+
+            datosDiarios = [];
+            localStorage.setItem("eyp_diario", JSON.stringify(datosDiarios));
+
+            document.getElementById("encCodigo").value = "";
+            document.getElementById("encNombre").value = "";
+
+            cerrarModalGrupo();
+            renderizarDiario();
+            mostrarNotificacion(`Grupo ${codigoGenerado} guardado exitosamente`, 'exito');
+            if (db.tienePermiso('verHistorialGrupos')) {
+                switchTab('planilla');
+            }
+        }
+
+        function renderizarHistorial() {
+            let contenedor = document.getElementById("listaGrupos");
+            if (!contenedor) return;
+
+            const usuario = db.getUsuarioActual();
+            const puedeVerTodos = db.tienePermiso('verTodosLosGrupos') || db.esAdministrador();
+
+            let gruposAMostrar = puedeVerTodos ? historialGrupos : historialGrupos.filter(g => g.creador === usuario.username);
+
+            // Aplicar filtros de búsqueda y fecha
+            const textoBusqueda = document.getElementById('buscarHistorial')?.value.toLowerCase() || '';
+            const fechaDesde = document.getElementById('filtroFechaDesde')?.value;
+            const fechaHasta = document.getElementById('filtroFechaHasta')?.value;
+
+            gruposAMostrar = gruposAMostrar.filter(g => {
+                // Filtro de texto
+                const cumpleTexto = textoBusqueda === '' ||
+                    g.idGrupo.toLowerCase().includes(textoBusqueda) ||
+                    g.encargado.nombre.toLowerCase().includes(textoBusqueda) ||
+                    g.encargado.codigo.toLowerCase().includes(textoBusqueda) ||
+                    (g.creadorNombre || g.creador).toLowerCase().includes(textoBusqueda);
+
+                // Filtro de fecha
+                let cumpleFecha = true;
+                if (fechaDesde || fechaHasta) {
+                    const fechaGrupo = new Date(g.fechaCreacion);
+                    if (fechaDesde) {
+                        const desde = new Date(fechaDesde);
+                        desde.setHours(0, 0, 0, 0);
+                        if (fechaGrupo < desde) cumpleFecha = false;
+                    }
+                    if (fechaHasta) {
+                        const hasta = new Date(fechaHasta);
+                        hasta.setHours(23, 59, 59, 999);
+                        if (fechaGrupo > hasta) cumpleFecha = false;
+                    }
+                }
+                return cumpleTexto && cumpleFecha;
+            });
+
+            contenedor.innerHTML = gruposAMostrar.length === 0 ? "<p style='text-align:center; padding:20px; background:var(--gris-fondo);'>No hay grupos guardados que coincidan con los filtros.</p>" : "";
+
+            gruposAMostrar.forEach((g, i) => {
+                const indexOriginal = historialGrupos.findIndex(h => h.idGrupo === g.idGrupo);
+
+                let acciones = '';
+                acciones += `<button class="btn-action btn-view" onclick="verDetalleGrupo(${indexOriginal})">VER</button> `;
+
+                if (db.tienePermiso('editarRegistros') && (g.creador === usuario.username || db.esAdministrador())) {
+                    acciones += `<button class="btn-action btn-edit" onclick="editarEncargadoGrupo(${indexOriginal})">ENC</button> `;
+                    acciones += `<button class="btn-action btn-edit" onclick="editarRegistrosGrupo(${indexOriginal})" style="background:var(--verde-claro); color:var(--verde-texto); border-color:var(--verde-texto);">REG</button> `;
+                }
+
+                if (db.tienePermiso('eliminarRegistros') && (g.creador === usuario.username || db.esAdministrador())) {
+                    acciones += `<button class="btn-action btn-delete" onclick="eliminarGrupo(${indexOriginal})">ELIM</button> `;
+                }
+
+                if (db.tienePermiso('exportarExcel')) {
+                    acciones += `<button class="btn-action btn-export" onclick="descargarGrupoCSV(${indexOriginal})" style="width:auto; padding:5px 10px">EXCEL</button>`;
+                }
+
+                contenedor.innerHTML += `
+                <div class="group-card">
+                    <div class="group-header">
+                        <div>
+                            <span class="group-code">${g.idGrupo}</span>
+                            <span class="group-creador">(Creado por: ${g.creadorNombre || g.creador})</span><br>
+                            <small style="color:var(--gris-oscuro);">${g.fechaCreacion} | ${g.registros.length} registros</small>
+                        </div>
+                        <div style="display:flex; gap:5px; flex-wrap:wrap;">
+                            ${acciones}
+                        </div>
+                    </div>
+                    <div style="font-size:12px; color:var(--charcoal); background:var(--gris-fondo); padding:8px;">
+                        <strong>Encargado:</strong> ${g.encargado.nombre} (${g.encargado.codigo})
+                    </div>
+                </div>`;
+            });
+        }
+
+        window.aplicarFiltrosHistorial = function () {
+            renderizarHistorial();
+        };
+
+        function verDetalleGrupo(index) {
+            let g = historialGrupos[index];
+            document.getElementById("detGrupoTitulo").innerText = "Detalle: " + g.idGrupo;
+            document.getElementById("detGrupoEncargado").innerHTML = `
+                <strong>Encargado:</strong> ${g.encargado.nombre} (${g.encargado.codigo}) | 
+                <strong>Fecha:</strong> ${g.fechaCreacion} | 
+                <strong>Creado por:</strong> ${g.creadorNombre || g.creador} |
+                <strong>Total:</strong> ${g.registros.length} registros
+            `;
+
+            let tbody = document.getElementById("cuerpoDetalleGrupo");
+            tbody.innerHTML = "";
+
+            g.registros.forEach(r => {
+                tbody.innerHTML += `<tr>
+                    <td>${r.codigo || ''}</td>
+                    <td><strong>${r.nombre || ''}</strong></td>
+                    <td>${r.codActividad || ''}</td>
+                    <td>${r.actividad || ''}</td>
+                    <td>${r.produccion || ''}</td>
+                    <td>${r.lote || ''}</td>
+                    <td>${r.hectareas || ''}</td>
+                    <td>${r.anio || ''}</td>
+                    <td>${r.dia || ''}</td>
+                    <td>${r.avance || ''}</td>
+                    <td>${r.hEntrada || ''}</td>
+                    <td>${r.hSalida || ''}</td>
+                    <td>${r.hOrdinarias || ''}</td>
+                    <td>${r.hExtras || ''}</td>
+                </tr>`;
+            });
+
+            document.getElementById("modalDetalleGrupo").style.display = "flex";
+        }
+
+        function cerrarModalDetalle() {
+            document.getElementById("modalDetalleGrupo").style.display = "none";
+        }
+
+        function editarEncargadoGrupo(index) {
+            if (!db.tienePermiso('editarRegistros')) {
+                mostrarNotificacion('No tiene permiso para editar', 'error');
+                return;
+            }
+
+            let g = historialGrupos[index];
+            document.getElementById("editGrupoIndex").value = index;
+            document.getElementById("encCodigo").value = g.encargado.codigo;
+            document.getElementById("encNombre").value = g.encargado.nombre;
+            document.getElementById("tituloModalGrupo").innerText = "Editar Encargado de " + g.idGrupo;
+            document.getElementById("btnConfirmarGrupo").onclick = guardarEdicionEncargado;
+            document.getElementById("modalGrupo").style.display = "flex";
+        }
+
+        function guardarEdicionEncargado() {
+            let index = document.getElementById("editGrupoIndex").value;
+            historialGrupos[index].encargado.codigo = document.getElementById("encCodigo").value;
+            historialGrupos[index].encargado.nombre = document.getElementById("encNombre").value;
+            localStorage.setItem("eyp_historial", JSON.stringify(historialGrupos));
+            cerrarModalGrupo();
+
+            document.getElementById("encCodigo").value = "";
+            document.getElementById("encNombre").value = "";
+
+            renderizarHistorial();
+            mostrarNotificacion("Encargado actualizado correctamente", 'exito');
+        }
+
+        function editarRegistrosGrupo(index) {
+            if (!db.tienePermiso('editarRegistros')) {
+                mostrarNotificacion('No tiene permiso para editar registros', 'error');
+                return;
+            }
+
+            currentEditMode = true;
+            let g = historialGrupos[index];
+            document.getElementById("editRegistrosGrupoIndex").value = index;
+            document.getElementById("editRegistrosTitulo").innerHTML = `Editando Registros - <span style="color:var(--celeste-texto);">${g.idGrupo}</span>`;
+
+            let tbody = document.getElementById("editRegistrosBody");
+            tbody.innerHTML = "";
+
+            g.registros.forEach((registro, regIndex) => {
+                agregarFilaRegistro(tbody, index, regIndex, registro);
+            });
+
+            document.getElementById("modalEditarRegistrosGrupo").style.display = "flex";
+        }
+
+        function agregarFilaRegistro(tbody, grupoIndex, regIndex, registro = null) {
+            let row = document.createElement("tr");
+
+            let deleteButton = db.tienePermiso('eliminarRegistros')
+                ? `<button class="btn-eliminar-registro" onclick="eliminarRegistroDeGrupo(this, ${grupoIndex}, ${regIndex})">Eliminar</button>`
+                : '';
+
+            row.innerHTML = `
+                <td><input type="text" class="reg-codigo" value="${registro?.codigo || ''}" placeholder="Código"></td>
+                <td><input type="text" class="reg-nombre" value="${registro?.nombre || ''}" placeholder="Nombre *"></td>
+                <td><input type="text" class="reg-codActividad" value="${registro?.codActividad || ''}" placeholder="Cod.Act"></td>
+                <td><input type="text" class="reg-actividad" value="${registro?.actividad || ''}" placeholder="Actividad"></td>
+                <td><input type="text" class="reg-produccion" value="${registro?.produccion || ''}" placeholder="Prod"></td>
+                <td><input type="text" class="reg-lote" value="${registro?.lote || ''}" placeholder="Lote"></td>
+                <td><input type="text" class="reg-hectareas" value="${registro?.hectareas || ''}" placeholder="HA"></td>
+                <td><input type="text" class="reg-anio" value="${registro?.anio || ''}" placeholder="Año"></td>
+                <td><input type="text" class="reg-dia" value="${registro?.dia || ''}" placeholder="Día"></td>
+                <td><input type="text" class="reg-avance" value="${registro?.avance || ''}" placeholder="Avance"></td>
+                <td><input type="text" class="reg-hEntrada" value="${registro?.hEntrada || ''}" placeholder="H.Ent"></td>
+                <td><input type="text" class="reg-hSalida" value="${registro?.hSalida || ''}" placeholder="H.Sal"></td>
+                <td><input type="text" class="reg-hOrdinarias" value="${registro?.hOrdinarias || ''}" placeholder="H.Ord"></td>
+                <td><input type="text" class="reg-hExtras" value="${registro?.hExtras || ''}" placeholder="H.Ext"></td>
+                <td>${deleteButton}</td>
+            `;
+
+            tbody.appendChild(row);
+        }
+
+        function agregarRegistroVacio() {
+            if (!db.tienePermiso('editarRegistros')) {
+                mostrarNotificacion('No tiene permiso para agregar registros', 'error');
+                return;
+            }
+
+            let tbody = document.getElementById("editRegistrosBody");
+            let grupoIndex = document.getElementById("editRegistrosGrupoIndex").value;
+            let nuevoIndex = tbody.children.length;
+            agregarFilaRegistro(tbody, grupoIndex, nuevoIndex, null);
+
+            setTimeout(() => {
+                let container = document.querySelector(".edit-registros-container");
+                container.scrollTop = container.scrollHeight;
+            }, 100);
+        }
+
+        function eliminarRegistroDeGrupo(button, grupoIndex, regIndex) {
+            if (!db.tienePermiso('eliminarRegistros')) {
+                mostrarNotificacion('No tiene permiso para eliminar registros', 'error');
+                return;
+            }
+
+            confirmarAccion("¿Eliminar este registro del grupo?", () => {
+                let row = button.closest('tr');
+                row.remove();
+
+                let tbody = document.getElementById("editRegistrosBody");
+                let rows = tbody.querySelectorAll('tr');
+                rows.forEach((row, idx) => {
+                    let deleteBtn = row.querySelector('.btn-eliminar-registro');
+                    if (deleteBtn) {
+                        let oldOnclick = deleteBtn.getAttribute('onclick');
+                        let newOnclick = oldOnclick.replace(/,\s*\d+\s*\)/, `, ${idx})`);
+                        deleteBtn.setAttribute('onclick', newOnclick);
+                    }
+                });
+
+                mostrarNotificacion("Registro eliminado", 'exito');
+            });
+        }
+
+        function guardarEdicionRegistros() {
+            if (!db.tienePermiso('editarRegistros')) {
+                mostrarNotificacion('No tiene permiso para editar registros', 'error');
+                return;
+            }
+
+            let grupoIndex = document.getElementById("editRegistrosGrupoIndex").value;
+            let tbody = document.getElementById("editRegistrosBody");
+            let rows = tbody.querySelectorAll('tr');
+
+            let nuevosRegistros = [];
+            let registrosGuardados = 0;
+            let registrosConError = 0;
+
+            rows.forEach(row => {
+                let registro = {
+                    codigo: row.querySelector(".reg-codigo").value,
+                    nombre: row.querySelector(".reg-nombre").value,
+                    codActividad: row.querySelector(".reg-codActividad").value,
+                    actividad: row.querySelector(".reg-actividad").value,
+                    produccion: row.querySelector(".reg-produccion").value,
+                    lote: row.querySelector(".reg-lote").value,
+                    hectareas: row.querySelector(".reg-hectareas").value,
+                    anio: row.querySelector(".reg-anio").value,
+                    dia: row.querySelector(".reg-dia").value,
+                    avance: row.querySelector(".reg-avance").value,
+                    hEntrada: row.querySelector(".reg-hEntrada").value,
+                    hSalida: row.querySelector(".reg-hSalida").value,
+                    hOrdinarias: row.querySelector(".reg-hOrdinarias").value,
+                    hExtras: row.querySelector(".reg-hExtras").value
+                };
+
+                if (registro.nombre) {
+                    nuevosRegistros.push(registro);
+                    registrosGuardados++;
+                } else {
+                    registrosConError++;
+                    row.querySelector(".reg-nombre").style.borderColor = 'var(--rojo-texto)';
+                }
+            });
+
+            if (registrosConError > 0) {
+                mostrarNotificacion(`${registrosConError} registro(s) no tienen nombre y no se guardaron`, 'error');
+                return;
+            }
+
+            historialGrupos[grupoIndex].registros = nuevosRegistros;
+            localStorage.setItem("eyp_historial", JSON.stringify(historialGrupos));
+
+            cerrarModalEditarRegistros();
+            renderizarHistorial();
+            mostrarNotificacion(`${registrosGuardados} registros actualizados correctamente`, 'exito');
+            currentEditMode = false;
+        }
+
+        function cerrarModalEditarRegistros() {
+            document.getElementById("modalEditarRegistrosGrupo").style.display = "none";
+            currentEditMode = false;
+        }
+
+        function eliminarGrupo(i) {
+            if (!db.tienePermiso('eliminarRegistros')) {
+                mostrarNotificacion('No tiene permiso para eliminar grupos', 'error');
+                return;
+            }
+
+            confirmarAccion("¿Está seguro de eliminar todo este grupo permanentemente?", () => {
+                let grupoEliminado = historialGrupos[i].idGrupo;
+                historialGrupos.splice(i, 1);
+                localStorage.setItem("eyp_historial", JSON.stringify(historialGrupos));
+                renderizarHistorial();
+                mostrarNotificacion(`Grupo ${grupoEliminado} eliminado correctamente`, 'exito');
+            });
+        }
+
+        function descargarGrupoCSV(index) {
+            if (!db.tienePermiso('exportarExcel')) {
+                mostrarNotificacion('No tiene permiso para exportar', 'error');
+                return;
+            }
+
+            let g = historialGrupos[index];
+            let csv = `GRUPO:;${g.idGrupo};FECHA:;${g.fechaCreacion};ENCARGADO:;${g.encargado.nombre};CREADO POR:;${g.creadorNombre || g.creador}\n`;
+            csv += "CODIGO;NOMBRE;COD_ACT;ACTIVIDAD;PRODUCCION;LOTE;HA;ANIO;DIA;AVANCE;H_ENT;H_SAL;H_ORD;H_EXT\n";
+            g.registros.forEach(r => {
+                csv += `${r.codigo || ''};${r.nombre || ''};${r.codActividad || ''};${r.actividad || ''};${r.produccion || ''};${r.lote || ''};${r.hectareas || ''};${r.anio || ''};${r.dia || ''};${r.avance || ''};${r.hEntrada || ''};${r.hSalida || ''};${r.hOrdinarias || ''};${r.hExtras || ''}\n`;
+            });
+            let blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8;" });
+            let a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = `${g.idGrupo}.csv`;
+            a.click();
+            mostrarNotificacion(`Archivo ${g.idGrupo}.csv descargado`, 'exito');
+        }
+
+        function exportarExcel() {
+            if (!db.tienePermiso('exportarExcel')) {
+                mostrarNotificacion('No tiene permiso para exportar', 'error');
+                return;
+            }
+
+            if (datosDiarios.length === 0) {
+                mostrarNotificacion("No hay datos para exportar", 'error');
+                return;
+            }
+
+            let csv = "CODIGO;NOMBRE;COD_ACT;ACTIVIDAD;PRODUCCION;LOTE;HA;ANIO;DIA;AVANCE;H_ENT;H_SAL;H_ORD;H_EXT\n";
+            datosDiarios.forEach(d => {
+                csv += `${d.codigo || ''};${d.nombre || ''};${d.codActividad || ''};${d.actividad || ''};${d.produccion || ''};${d.lote || ''};${d.hectareas || ''};${d.anio || ''};${d.dia || ''};${d.avance || ''};${d.hEntrada || ''};${d.hSalida || ''};${d.hOrdinarias || ''};${d.hExtras || ''}\n`;
+            });
+            let blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8;" });
+            let a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = "produccion_diaria.csv";
+            a.click();
+            mostrarNotificacion("Archivo produccion_diaria.csv descargado", 'exito');
+        }
+
+        // Panel de Administración de Usuarios
+        window.mostrarPanelUsuarios = function () {
+            if (!db.tienePermiso('gestionarUsuarios')) {
+                mostrarNotificacion('No tiene permiso para gestionar usuarios', 'error');
+                return;
+            }
+
+            const usuarios = db.getUsuarios();
+
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'flex';
+
+            const contenido = document.createElement('div');
+            contenido.className = 'modal-content';
+            contenido.style.maxWidth = '1000px';
+
+            contenido.innerHTML = `
+                <h2 style="margin-bottom:20px;">Administración de Usuarios</h2>
+                
+                <div style="margin-bottom:20px;">
+                    <button onclick="mostrarFormularioNuevoUsuario()" style="padding:10px; background:var(--verde-texto); color:white; border:none; cursor:pointer;">+ Nuevo Usuario</button>
+                </div>
+                
+                <div style="overflow-x: auto;">
+                    <table class="usuarios-table">
+                        <thead>
+                            <tr>
+                                <th>Usuario</th>
+                                <th>Nombre</th>
+                                <th>Rol</th>
+                                <th>Estado</th>
+                                <th>Permisos</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${usuarios.map(u => `
+                                <tr>
+                                    <td><strong>${u.username}</strong></td>
+                                    <td>${u.nombre}</td>
+                                    <td>${u.rol}</td>
+                                    <td>
+                                        <span style="color:${u.activo ? 'var(--verde-texto)' : 'var(--rojo-texto)'}">
+                                            ${u.activo ? 'Activo' : 'Inactivo'}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="permiso-badge ${u.permisos.verAdminDB ? 'permiso-activo' : 'permiso-inactivo'}">DB</span>
+                                        <span class="permiso-badge ${u.permisos.exportarExcel ? 'permiso-activo' : 'permiso-inactivo'}">XLS</span>
+                                        <span class="permiso-badge ${u.permisos.eliminarRegistros ? 'permiso-activo' : 'permiso-inactivo'}">DEL</span>
+                                        <span class="permiso-badge ${u.permisos.editarRegistros ? 'permiso-activo' : 'permiso-inactivo'}">EDT</span>
+                                        <span class="permiso-badge ${u.permisos.agregarRegistros ? 'permiso-activo' : 'permiso-inactivo'}">ADD</span>
+                                        <span class="permiso-badge ${u.permisos.verHistorialGrupos ? 'permiso-activo' : 'permiso-inactivo'}">HIS</span>
+                                        <span class="permiso-badge ${u.permisos.verTodosLosGrupos ? 'permiso-activo' : 'permiso-inactivo'}">ALL</span>
+                                        <span class="permiso-badge ${u.permisos.cambiarPassword ? 'permiso-activo' : 'permiso-inactivo'}">PWD</span>
+                                    </td>
+                                    <td>
+                                        <button onclick="editarUsuarioForm(${u.id})" style="padding:3px 8px; background:var(--celeste-claro); border:1px solid var(--celeste-texto); cursor:pointer; margin-right:5px;">Editar</button>
+                                        <button onclick="toggleUsuarioActivo(${u.id})" style="padding:3px 8px; background:var(--amarillo-claro); border:1px solid var(--amarillo-texto); cursor:pointer; margin-right:5px;">${u.activo ? 'Inhabilitar' : 'Habilitar'}</button>
+                                        ${u.id !== 1 ? `<button onclick="eliminarUsuarioConfirm(${u.id})" style="padding:3px 8px; background:var(--rojo-claro); border:1px solid var(--rojo-texto); cursor:pointer;">Eliminar</button>` : ''}
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <button onclick="this.closest('.modal').remove()" style="width:100%; margin-top:20px; padding:10px; background:var(--charcoal); color:white; border:none; cursor:pointer;">Cerrar</button>
+            `;
+
+            modal.appendChild(contenido);
+            document.body.appendChild(modal);
+        };
+
+        // Mostrar formulario de nuevo usuario
+        window.mostrarFormularioNuevoUsuario = function () {
+            // Cerrar el modal de administración de usuarios primero
+            const modalAdmin = document.querySelector('.modal');
+            if (modalAdmin) modalAdmin.remove();
+
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'flex';
+
+            const contenido = document.createElement('div');
+            contenido.className = 'modal-content';
+
+            contenido.innerHTML = `
+                <h3 style="margin-bottom:15px;">Nuevo Usuario</h3>
+                
+                <div class="form-group">
+                    <label>Nombre de usuario *</label>
+                    <input type="text" id="nuevo-username" style="width:100%; padding:8px; border:1px solid var(--gris-borde);">
+                </div>
+                
+                <div class="form-group" style="margin-top:10px;">
+                    <label>Contraseña *</label>
+                    <input type="password" id="nuevo-password" style="width:100%; padding:8px; border:1px solid var(--gris-borde);">
+                </div>
+                
+                <div class="form-group" style="margin-top:10px;">
+                    <label>Nombre completo *</label>
+                    <input type="text" id="nuevo-nombre" style="width:100%; padding:8px; border:1px solid var(--gris-borde);">
+                </div>
+                
+                <div class="form-group" style="margin-top:10px;">
+                    <label>Rol</label>
+                    <select id="nuevo-rol" style="width:100%; padding:8px; border:1px solid var(--gris-borde);">
+                        <option value="usuario">Usuario</option>
+                        <option value="supervisor">Supervisor</option>
+                        <option value="administrador">Administrador</option>
+                    </select>
+                </div>
+                
+                <div style="margin-top:15px;">
+                    <h4>Permisos</h4>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                        <label><input type="checkbox" id="perm-verAdminDB"> Ver Admin DB</label>
+                        <label><input type="checkbox" id="perm-exportarExcel"> Exportar Excel</label>
+                        <label><input type="checkbox" id="perm-eliminarRegistros"> Eliminar Registros</label>
+                        <label><input type="checkbox" id="perm-editarRegistros" checked> Editar Registros</label>
+                        <label><input type="checkbox" id="perm-agregarRegistros" checked> Agregar Registros</label>
+                        <label><input type="checkbox" id="perm-verHistorialGrupos" checked> Ver Historial</label>
+                        <label><input type="checkbox" id="perm-verTodosLosGrupos"> Ver Todos los Grupos</label>
+                        <label><input type="checkbox" id="perm-cambiarPassword"> Cambiar Contraseña</label>
+                    </div>
+                </div>
+                
+                <div style="margin-top:15px;">
+                    <h4>Pregunta de seguridad</h4>
+                    <div class="form-group">
+                        <label>Pregunta *</label>
+                        <input type="text" id="nuevo-pregunta" style="width:100%; padding:8px; border:1px solid var(--gris-borde);">
+                    </div>
+                    <div class="form-group" style="margin-top:10px;">
+                        <label>Respuesta *</label>
+                        <input type="text" id="nuevo-respuesta" style="width:100%; padding:8px; border:1px solid var(--gris-borde);">
+                    </div>
+                </div>
+                
+                <div style="margin-top:20px; display:flex; gap:10px; justify-content:flex-end;">
+                    <button onclick="guardarNuevoUsuario()" style="padding:10px; background:var(--verde-texto); color:white; border:none; cursor:pointer;">Guardar</button>
+                    <button onclick="volverPanelUsuarios()" style="padding:10px; background:var(--gris-fondo); border:1px solid var(--gris-borde); cursor:pointer;">Cancelar</button>
+                </div>
+            `;
+
+            modal.appendChild(contenido);
+            document.body.appendChild(modal);
+        };
+
+        // Guardar nuevo usuario
+        window.guardarNuevoUsuario = function () {
+            const permisos = {
+                verAdminDB: document.getElementById('perm-verAdminDB').checked,
+                exportarExcel: document.getElementById('perm-exportarExcel').checked,
+                eliminarRegistros: document.getElementById('perm-eliminarRegistros').checked,
+                editarRegistros: document.getElementById('perm-editarRegistros').checked,
+                agregarRegistros: document.getElementById('perm-agregarRegistros').checked,
+                verHistorialGrupos: document.getElementById('perm-verHistorialGrupos').checked,
+                verTodosLosGrupos: document.getElementById('perm-verTodosLosGrupos').checked,
+                cambiarPassword: document.getElementById('perm-cambiarPassword').checked,
+                gestionarUsuarios: false
+            };
+
+            const resultado = db.agregarUsuario({
+                username: document.getElementById('nuevo-username').value,
+                password: document.getElementById('nuevo-password').value,
+                nombre: document.getElementById('nuevo-nombre').value,
+                rol: document.getElementById('nuevo-rol').value,
+                permisos: permisos,
+                preguntaSeguridad: document.getElementById('nuevo-pregunta').value,
+                respuestaSeguridad: document.getElementById('nuevo-respuesta').value
+            });
+
+            if (resultado.success) {
+                mostrarNotificacion(resultado.message, 'exito');
+                document.querySelector('.modal').remove();
+                mostrarPanelUsuarios();
+            } else {
+                mostrarNotificacion(resultado.message, 'error');
+            }
+        };
+
+        // Volver al panel de usuarios (CORREGIDO)
+        window.volverPanelUsuarios = function () {
+            // Cerrar el modal actual
+            const modalActual = document.querySelector('.modal');
+            if (modalActual) modalActual.remove();
+            // Abrir el panel de usuarios
+            mostrarPanelUsuarios();
+        };
+
+        // Editar usuario
+        window.editarUsuarioForm = function (id) {
+            const usuario = db.getUsuarios().find(u => u.id === id);
+            if (!usuario) return;
+
+            document.querySelector('.modal').remove();
+
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'flex';
+
+            const contenido = document.createElement('div');
+            contenido.className = 'modal-content';
+
+            contenido.innerHTML = `
+                <h3>Editar Usuario</h3>
+                <input type="hidden" id="edit-usuario-id" value="${id}">
+                
+                <div class="form-group">
+                    <label>Nombre de usuario</label>
+                    <input type="text" id="edit-username" value="${usuario.username}" style="width:100%; padding:8px; border:1px solid var(--gris-borde);">
+                </div>
+                
+                <div class="form-group" style="margin-top:10px;">
+                    <label>Nueva contraseña (dejar en blanco para no cambiar)</label>
+                    <input type="password" id="edit-password" style="width:100%; padding:8px; border:1px solid var(--gris-borde);">
+                </div>
+                
+                <div class="form-group" style="margin-top:10px;">
+                    <label>Nombre completo</label>
+                    <input type="text" id="edit-nombre" value="${usuario.nombre}" style="width:100%; padding:8px; border:1px solid var(--gris-borde);">
+                </div>
+                
+                <div class="form-group" style="margin-top:10px;">
+                    <label>Rol</label>
+                    <select id="edit-rol" style="width:100%; padding:8px; border:1px solid var(--gris-borde);">
+                        <option value="usuario" ${usuario.rol === 'usuario' ? 'selected' : ''}>Usuario</option>
+                        <option value="supervisor" ${usuario.rol === 'supervisor' ? 'selected' : ''}>Supervisor</option>
+                        <option value="administrador" ${usuario.rol === 'administrador' ? 'selected' : ''}>Administrador</option>
+                    </select>
+                </div>
+                
+                <div style="margin-top:15px;">
+                    <h4>Permisos</h4>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                        <label><input type="checkbox" id="edit-perm-verAdminDB" ${usuario.permisos.verAdminDB ? 'checked' : ''}> Ver Admin DB</label>
+                        <label><input type="checkbox" id="edit-perm-exportarExcel" ${usuario.permisos.exportarExcel ? 'checked' : ''}> Exportar Excel</label>
+                        <label><input type="checkbox" id="edit-perm-eliminarRegistros" ${usuario.permisos.eliminarRegistros ? 'checked' : ''}> Eliminar Registros</label>
+                        <label><input type="checkbox" id="edit-perm-editarRegistros" ${usuario.permisos.editarRegistros ? 'checked' : ''}> Editar Registros</label>
+                        <label><input type="checkbox" id="edit-perm-agregarRegistros" ${usuario.permisos.agregarRegistros ? 'checked' : ''}> Agregar Registros</label>
+                        <label><input type="checkbox" id="edit-perm-verHistorialGrupos" ${usuario.permisos.verHistorialGrupos ? 'checked' : ''}> Ver Historial</label>
+                        <label><input type="checkbox" id="edit-perm-verTodosLosGrupos" ${usuario.permisos.verTodosLosGrupos ? 'checked' : ''}> Ver Todos los Grupos</label>
+                        <label><input type="checkbox" id="edit-perm-cambiarPassword" ${usuario.permisos.cambiarPassword ? 'checked' : ''}> Cambiar Contraseña</label>
+                    </div>
+                </div>
+                
+                <div style="margin-top:15px;">
+                    <h4>Pregunta de seguridad</h4>
+                    <div class="form-group">
+                        <label>Pregunta</label>
+                        <input type="text" id="edit-pregunta" value="${usuario.preguntaSeguridad || ''}" style="width:100%; padding:8px; border:1px solid var(--gris-borde);">
+                    </div>
+                    <div class="form-group" style="margin-top:10px;">
+                        <label>Nueva respuesta (dejar en blanco para no cambiar)</label>
+                        <input type="text" id="edit-respuesta" style="width:100%; padding:8px; border:1px solid var(--gris-borde);">
+                    </div>
+                </div>
+                
+                <div style="margin-top:20px; display:flex; gap:10px; justify-content:flex-end;">
+                    <button onclick="guardarEdicionUsuario()" style="padding:10px; background:var(--verde-texto); color:white; border:none; cursor:pointer;">Guardar</button>
+                    <button onclick="volverPanelUsuarios()" style="padding:10px; background:var(--gris-fondo); border:1px solid var(--gris-borde); cursor:pointer;">Cancelar</button>
+                </div>
+            `;
+
+            modal.appendChild(contenido);
+            document.body.appendChild(modal);
+        };
+
+        // Guardar edición de usuario
+        window.guardarEdicionUsuario = function () {
+            const id = parseInt(document.getElementById('edit-usuario-id').value);
+
+            const usuarioData = {
+                username: document.getElementById('edit-username').value,
+                nombre: document.getElementById('edit-nombre').value,
+                rol: document.getElementById('edit-rol').value,
+                permisos: {
+                    verAdminDB: document.getElementById('edit-perm-verAdminDB').checked,
+                    exportarExcel: document.getElementById('edit-perm-exportarExcel').checked,
+                    eliminarRegistros: document.getElementById('edit-perm-eliminarRegistros').checked,
+                    editarRegistros: document.getElementById('edit-perm-editarRegistros').checked,
+                    agregarRegistros: document.getElementById('edit-perm-agregarRegistros').checked,
+                    verHistorialGrupos: document.getElementById('edit-perm-verHistorialGrupos').checked,
+                    verTodosLosGrupos: document.getElementById('edit-perm-verTodosLosGrupos').checked,
+                    cambiarPassword: document.getElementById('edit-perm-cambiarPassword').checked,
+                    gestionarUsuarios: false
+                },
+                preguntaSeguridad: document.getElementById('edit-pregunta').value
+            };
+
+            const password = document.getElementById('edit-password').value;
+            if (password) {
+                usuarioData.password = password;
+            }
+
+            const respuesta = document.getElementById('edit-respuesta').value;
+            if (respuesta) {
+                usuarioData.respuestaSeguridad = respuesta;
+            }
+
+            const resultado = db.editarUsuario(id, usuarioData);
+
+            if (resultado.success) {
+                mostrarNotificacion(resultado.message, 'exito');
+                document.querySelector('.modal').remove();
+                mostrarPanelUsuarios();
+            } else {
+                mostrarNotificacion(resultado.message, 'error');
+            }
+        };
+
+        // Toggle usuario activo
+        window.toggleUsuarioActivo = function (id) {
+            const resultado = db.toggleUsuarioActivo(id);
+            if (resultado.success) {
+                mostrarNotificacion(resultado.message, 'exito');
+                document.querySelector('.modal').remove();
+                mostrarPanelUsuarios();
+            } else {
+                mostrarNotificacion(resultado.message, 'error');
+            }
+        };
+
+        // Eliminar usuario
+        window.eliminarUsuarioConfirm = function (id) {
+            if (confirm('¿Está seguro de eliminar este usuario?')) {
+                const resultado = db.eliminarUsuario(id);
+                if (resultado.success) {
+                    mostrarNotificacion(resultado.message, 'exito');
+                    document.querySelector('.modal').remove();
+                    mostrarPanelUsuarios();
+                } else {
+                    mostrarNotificacion(resultado.message, 'error');
+                }
+            }
+        };
+
+        // Mostrar panel de Admin DB (MEJORADO)
+        window.mostrarPanelAdminDB = function () {
+            if (!db.tienePermiso('verAdminDB')) {
+                mostrarNotificacion('No tiene permiso para ver esta sección', 'error');
+                return;
+            }
+
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'flex';
+
+            const contenido = document.createElement('div');
+            contenido.className = 'modal-content';
+            contenido.style.maxWidth = '1000px';
+
+            contenido.innerHTML = `
+                <h2 style="margin-bottom:20px;">Administración de Base de Datos</h2>
+                
+                <div style="margin-bottom:30px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                        <h3>Trabajadores</h3>
+                        <button onclick="agregarTrabajadorAdmin()" class="btn-add btn-small">+ Nuevo Trabajador</button>
+                    </div>
+                    
+                    <div style="margin-bottom:15px;">
+                        <input type="text" id="buscarTrabajadores" class="search-input" placeholder="Buscar trabajador por código o nombre..." style="width:100%;">
+                    </div>
+                    
+                    <div style="overflow-x: auto;">
+                        <table class="admin-db-table" id="tablaTrabajadores">
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Nombre</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cuerpoTrabajadores"></tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div style="margin-top:30px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                        <h3>Actividades</h3>
+                        <button onclick="agregarActividadAdmin()" class="btn-add btn-small">+ Nueva Actividad</button>
+                    </div>
+                    
+                    <div style="margin-bottom:15px;">
+                        <input type="text" id="buscarActividades" class="search-input" placeholder="Buscar actividad por código o nombre..." style="width:100%;">
+                    </div>
+                    
+                    <div style="overflow-x: auto;">
+                        <table class="admin-db-table" id="tablaActividades">
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Actividad</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cuerpoActividades"></tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <button onclick="this.closest('.modal').remove()" style="width:100%; margin-top:30px; padding:10px; background:var(--charcoal); color:white; border:none; cursor:pointer;">Cerrar</button>
+            `;
+
+            modal.appendChild(contenido);
+            document.body.appendChild(modal);
+
+            // Renderizar las tablas
+            renderizarAdminDB();
+
+            // Configurar buscadores
+            document.getElementById('buscarTrabajadores').addEventListener('input', renderizarAdminDB);
+            document.getElementById('buscarActividades').addEventListener('input', renderizarAdminDB);
+        };
+
+        function renderizarAdminDB() {
+            const cuerpoTrabajadores = document.getElementById('cuerpoTrabajadores');
+            const cuerpoActividades = document.getElementById('cuerpoActividades');
+
+            if (cuerpoTrabajadores) {
+                const filtroTrab = document.getElementById('buscarTrabajadores')?.value.toLowerCase() || '';
+                const trabajadores = db.getTrabajadores().filter(t =>
+                    t.codigo.toLowerCase().includes(filtroTrab) ||
+                    t.nombre.toLowerCase().includes(filtroTrab)
+                );
+
+                cuerpoTrabajadores.innerHTML = trabajadores.map(t => `
+                    <tr>
+                        <td>${t.codigo}</td>
+                        <td>${t.nombre}</td>
+                    </tr>
+                `).join('');
+            }
+
+            if (cuerpoActividades) {
+                const filtroAct = document.getElementById('buscarActividades')?.value.toLowerCase() || '';
+                const actividades = db.getActividades().filter(a =>
+                    a.codigo.toLowerCase().includes(filtroAct) ||
+                    a.nombre.toLowerCase().includes(filtroAct)
+                );
+
+                cuerpoActividades.innerHTML = actividades.map(a => `
+                    <tr>
+                        <td>${a.codigo}</td>
+                        <td>${a.nombre}</td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        // Funciones para agregar trabajador/actividad desde Admin DB
+        window.agregarTrabajadorAdmin = function () {
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'flex';
+
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width:400px;">
+                    <h3>Nuevo Trabajador</h3>
+                    <div class="form-group">
+                        <label>Código</label>
+                        <input type="text" id="nuevoTrabajadorCodigo" style="width:100%; padding:8px; border:1px solid var(--gris-borde);">
+                    </div>
+                    <div class="form-group" style="margin-top:10px;">
+                        <label>Nombre</label>
+                        <input type="text" id="nuevoTrabajadorNombre" style="width:100%; padding:8px; border:1px solid var(--gris-borde);">
+                    </div>
+                    <div style="margin-top:20px; display:flex; gap:10px; justify-content:flex-end;">
+                        <button onclick="guardarNuevoTrabajadorAdmin()" style="padding:10px; background:var(--verde-texto); color:white; border:none; cursor:pointer;">Guardar</button>
+                        <button onclick="this.closest('.modal').remove()" style="padding:10px; background:var(--gris-fondo); border:1px solid var(--gris-borde); cursor:pointer;">Cancelar</button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+        };
+
+        window.guardarNuevoTrabajadorAdmin = function () {
+            const codigo = document.getElementById('nuevoTrabajadorCodigo').value;
+            const nombre = document.getElementById('nuevoTrabajadorNombre').value;
+
+            const resultado = db.agregarTrabajador(codigo, nombre);
+            if (resultado.success) {
+                mostrarNotificacion(resultado.message, 'exito');
+                document.querySelector('.modal').remove();
+                renderizarAdminDB();
+            } else {
+                mostrarNotificacion(resultado.message, 'error');
+            }
+        };
+
+        window.agregarActividadAdmin = function () {
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'flex';
+
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width:400px;">
+                    <h3>Nueva Actividad</h3>
+                    <div class="form-group">
+                        <label>Código</label>
+                        <input type="text" id="nuevaActividadCodigo" style="width:100%; padding:8px; border:1px solid var(--gris-borde);">
+                    </div>
+                    <div class="form-group" style="margin-top:10px;">
+                        <label>Actividad</label>
+                        <input type="text" id="nuevaActividadNombre" style="width:100%; padding:8px; border:1px solid var(--gris-borde);">
+                    </div>
+                    <div style="margin-top:20px; display:flex; gap:10px; justify-content:flex-end;">
+                        <button onclick="guardarNuevaActividadAdmin()" style="padding:10px; background:var(--verde-texto); color:white; border:none; cursor:pointer;">Guardar</button>
+                        <button onclick="this.closest('.modal').remove()" style="padding:10px; background:var(--gris-fondo); border:1px solid var(--gris-borde); cursor:pointer;">Cancelar</button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+        };
+
+        window.guardarNuevaActividadAdmin = function () {
+            const codigo = document.getElementById('nuevaActividadCodigo').value;
+            const nombre = document.getElementById('nuevaActividadNombre').value;
+
+            const resultado = db.agregarActividad(codigo, nombre);
+            if (resultado.success) {
+                mostrarNotificacion(resultado.message, 'exito');
+                document.querySelector('.modal').remove();
+                renderizarAdminDB();
+            } else {
+                mostrarNotificacion(resultado.message, 'error');
+            }
+        };
+
+        // Hacer funciones globales
+        window.switchTab = switchTab;
+        window.abrirFormulario = abrirFormulario;
+        window.guardar = guardar;
+        window.limpiar = limpiar;
+        window.editar = editar;
+        window.eliminar = eliminar;
+        window.abrirModalGrupo = abrirModalGrupo;
+        window.cerrarModalGrupo = cerrarModalGrupo;
+        window.finalizarGuardarGrupo = finalizarGuardarGrupo;
+        window.verDetalleGrupo = verDetalleGrupo;
+        window.cerrarModalDetalle = cerrarModalDetalle;
+        window.editarEncargadoGrupo = editarEncargadoGrupo;
+        window.guardarEdicionEncargado = guardarEdicionEncargado;
+        window.editarRegistrosGrupo = editarRegistrosGrupo;
+        window.agregarRegistroVacio = agregarRegistroVacio;
+        window.eliminarRegistroDeGrupo = eliminarRegistroDeGrupo;
+        window.guardarEdicionRegistros = guardarEdicionRegistros;
+        window.cerrarModalEditarRegistros = cerrarModalEditarRegistros;
+        window.eliminarGrupo = eliminarGrupo;
+        window.descargarGrupoCSV = descargarGrupoCSV;
+        window.exportarExcel = exportarExcel;
+
+        // Inicializar la aplicación
+        renderizarApp();
+    </script>
+</body>
+
+</html>
