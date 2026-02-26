@@ -2,7 +2,7 @@
 
 class LocalDatabase {
     constructor() {
-        // Inicializar usuarios - Los datos están ofuscados
+        // Inicializar usuarios - Usando un método más simple que funciona en GitHub Pages
         this.usuarios = this.cargarUsuarios();
 
         // Inicializar trabajadores desde localStorage o usar datos por defecto
@@ -25,7 +25,7 @@ class LocalDatabase {
         this.init();
     }
 
-    // Cargar usuarios de forma ofuscada con las credenciales del administrador predefinidas
+    // Cargar usuarios - Versión simplificada que funciona en GitHub Pages
     cargarUsuarios() {
         // Intentar cargar desde localStorage primero
         const usuariosGuardados = localStorage.getItem('eyp_usuarios');
@@ -33,15 +33,15 @@ class LocalDatabase {
             return JSON.parse(usuariosGuardados);
         }
 
-        // Crear el administrador inicial con credenciales ofuscadas
-        // Usuario: Y.Oporta (ofuscado)
-        // Contraseña: Codex.2005 (ofuscada)
+        // Credenciales del administrador - Ofuscadas de manera más simple
+        // Usuario: Y.Oporta (representado como códigos ASCII)
+        // Contraseña: Codex.2005 (representado como códigos ASCII)
         const adminInicial = [
             {
                 id: 1,
-                username: this.descifrar('WS5vcG9ydGE='), // Y.Oporta en base64
-                password: this.hashPassword(this.descifrar('Q29kZXguMjAwNQ==')), // Codex.2005 en base64
-                nombre: this.descifrar('WWFkZXIgT3BvcnRh'), // Yader Oporta en base64
+                username: this.descifrarSimple([89, 46, 79, 112, 111, 114, 116, 97]), // Y.Oporta en códigos ASCII
+                password: this.hashPassword(this.descifrarSimple([67, 111, 100, 101, 120, 46, 50, 48, 48, 53])), // Codex.2005 en códigos ASCII
+                nombre: this.descifrarSimple([89, 97, 100, 101, 114, 32, 79, 112, 111, 114, 116, 97]), // Yader Oporta en códigos ASCII
                 rol: 'administrador',
                 activo: true,
                 permisos: {
@@ -55,8 +55,8 @@ class LocalDatabase {
                     verTodosLosGrupos: true,
                     cambiarPassword: true
                 },
-                preguntaSeguridad: this.descifrar('wr9DdWFsIGVzIHR1IGNvbG9yIGZhdm9yaXRvPw=='), // ¿Cuál es tu color favorito? en base64
-                respuestaSeguridad: this.hashPassword(this.descifrar('YXp1bA==')) // azul en base64
+                preguntaSeguridad: this.descifrarSimple([191, 67, 117, 97, 108, 32, 101, 115, 32, 116, 117, 32, 99, 111, 108, 111, 114, 32, 102, 97, 118, 111, 114, 105, 116, 111, 63]), // ¿Cuál es tu color favorito?
+                respuestaSeguridad: this.hashPassword(this.descifrarSimple([97, 122, 117, 108])) // azul en códigos ASCII
             }
         ];
 
@@ -64,16 +64,12 @@ class LocalDatabase {
         return adminInicial;
     }
 
-    // Función simple para descifrar strings en base64
-    descifrar(base64) {
-        try {
-            return atob(base64);
-        } catch (e) {
-            return '';
-        }
+    // Método simple para descifrar arrays de códigos ASCII (funciona en todos los entornos)
+    descifrarSimple(codigosAscii) {
+        return codigosAscii.map(codigo => String.fromCharCode(codigo)).join('');
     }
 
-    // Función para hashear contraseñas (simulación - no es criptográficamente segura)
+    // Función para hashear contraseñas
     hashPassword(password) {
         let hash = 0;
         for (let i = 0; i < password.length; i++) {
